@@ -13,7 +13,7 @@ const Store = {
     license: '',
     controlPrefix: 'MC',
     nextControl: 1,
-    adminPassword: 'admin123'
+    adminPassword: 'Admin001100'
   },
 
   all() {
@@ -32,6 +32,8 @@ const Store = {
   settings() {
     let s = {};
     try { s = JSON.parse(localStorage.getItem(this.SETTINGS_KEY)) || {}; } catch {}
+    // Browsers that saved settings before the default changed still hold the old one
+    if (s.adminPassword === 'admin123') s.adminPassword = this.DEFAULT_SETTINGS.adminPassword;
     return { ...this.DEFAULT_SETTINGS, ...s };
   },
   saveSettings(s) { localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(s)); }
