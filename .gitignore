@@ -1,3 +1,4 @@
 medcert.zip
 .vercel
 .env*
+node_modules

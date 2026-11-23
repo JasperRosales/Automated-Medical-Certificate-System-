@@ -5,27 +5,98 @@
   let currentId = null;
   let filter = 'pending';
 
-  /* ---------------- Auth (front-end only) ---------------- */
-  const loggedIn = () => sessionStorage.getItem('medcert_admin') === '1';
+  /* ---------------- Data (cached from the API) ---------------- */
+  const Store = {
+    list: [],
+    cfg: {},
+    timers: {},
+    async load() {
+      const [r, s] = await Promise.all([api('requests'), api('settings')]);
+      this.list = r.requests;
+      this.cfg = s.settings;
+    },
+    all() { return this.list; },
+    get(id) { return this.list.find(r => r.id === id); },
+    put(rec) {
+      const i = this.list.findIndex(r => r.id === rec.id);
+      if (i >= 0) this.list[i] = rec; else this.list.push(rec);
+    },
+    // Save edits to the server shortly after typing stops
+    save(rec) {
+      clearTimeout(this.timers[rec.id]);
+      setSaveState('Saving…');
+      this.timers[rec.id] = setTimeout(async () => {
+        try {
+          const body = { cert: rec.cert };
+          for (const k of PATIENT_KEYS) body[k] = rec[k];
+          await api(`requests/${rec.id}`, { method: 'PUT', body });
+          setSaveState('Saved');
+        } catch (e) {
+          setSaveState('Not saved: ' + e.message);
+          if (e.status === 401) location.reload();
+        }
+      }, 500);
+    },
+    settings() { return { ...this.cfg }; }
+  };
 
-  function showApp() {
-    $('#login').hidden = true;
-    $('#app').hidden = false;
-    renderList();
+  function setSaveState(t) {
+    const el = $('#saveState');
+    if (el) el.textContent = t;
   }
 
-  $('#loginForm').addEventListener('submit', (e) => {
+  // Run an API call; show errors, and go back to sign-in if the session ended
+  async function run(fn) {
+    try { return await fn(); }
+    catch (e) {
+      if (e.status === 401) { alert('Your session has ended. Please sign in again.'); location.reload(); }
+      else alert(e.message);
+      throw e;
+    }
+  }
+
+  /* ---------------- Auth ---------------- */
+  async function showApp() {
+    $('#login').hidden = true;
+    $('#app').hidden = false;
+    $('#items').innerHTML = '<div class="empty-state" style="padding:30px 10px">Loading…</div>';
+    await run(() => Store.load());
+    renderList();
+    setInterval(refresh, 15000);
+  }
+
+  // Pick up new requests from the client page
+  async function refresh() {
+    if (document.hidden) return;
+    try {
+      const { requests } = await api('requests');
+      // Keep the open request as-is so unsaved typing is not overwritten
+      const open = Store.get(currentId);
+      Store.list = requests.map(r => (open && r.id === open.id ? open : r));
+      renderList();
+    } catch (e) {
+      if (e.status === 401) location.reload();
+    }
+  }
+
+  $('#loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    if ($('#pw').value === Store.settings().adminPassword) {
-      sessionStorage.setItem('medcert_admin', '1');
+    $('#loginErr').textContent = '';
+    const btn = $('#loginForm button');
+    btn.disabled = true;
+    try {
+      await api('session', { method: 'POST', body: { password: $('#pw').value } });
+      $('#pw').value = '';
       showApp();
-    } else {
-      $('#loginErr').textContent = 'Incorrect password.';
+    } catch (ex) {
+      $('#loginErr').textContent = ex.message;
+    } finally {
+      btn.disabled = false;
     }
   });
 
-  $('#logoutBtn').addEventListener('click', () => {
-    sessionStorage.removeItem('medcert_admin');
+  $('#logoutBtn').addEventListener('click', async () => {
+    await api('session', { method: 'DELETE', body: {} }).catch(() => {});
     location.reload();
   });
 
@@ -67,10 +138,6 @@
     $$('.req', $('#items')).forEach(el => el.addEventListener('click', () => openRequest(el.dataset.id)));
   }
 
-  // Refresh the list when the client page (another tab) submits a request
-  window.addEventListener('storage', (e) => {
-    if (e.key === Store.KEY && loggedIn()) renderList();
-  });
 
   /* ---------------- Detail / certificate ---------------- */
   function ensureCert(rec) {
@@ -94,7 +161,7 @@
   function openRequest(id) {
     const rec = Store.get(id);
     if (!rec) return;
-    if (!rec.cert) Store.upsert(ensureCert(rec));
+    ensureCert(rec);
     currentId = id;
     renderList();
     renderDetail();
@@ -231,9 +298,7 @@
       const v = el.textContent.trim();
       if (PATIENT_KEYS.includes(k)) r[k] = v; else r.cert[k] = v;
       fit(el);
-      r.updatedAt = Date.now();
-      Store.upsert(r);
-      $('#saveState').textContent = 'Saved';
+      Store.save(r);
       if (k === 'name') renderList();
     });
 
@@ -260,34 +325,42 @@
 
     $('#approveBtn')?.addEventListener('click', approve);
     $('#printBtn')?.addEventListener('click', () => window.print());
-    $('#reopenBtn')?.addEventListener('click', () => {
+    $('#reopenBtn')?.addEventListener('click', async () => {
       const r = Store.get(currentId);
-      r.status = 'pending';
-      Store.upsert(r);
+      const { request } = await run(() => api(`requests/${r.id}`, { method: 'PUT', body: { status: 'pending', cert: r.cert } }));
+      Store.put(request);
       renderList(); renderDetail();
     });
-    $('#deleteBtn').addEventListener('click', () => {
+    $('#deleteBtn').addEventListener('click', async () => {
       const r = Store.get(currentId);
       if (!confirm(`Delete request ${r.ref} for ${r.name}? This cannot be undone.`)) return;
-      Store.remove(currentId);
+      await run(() => api(`requests/${r.id}`, { method: 'DELETE' }));
+      Store.list = Store.list.filter(x => x.id !== r.id);
       currentId = null;
       renderList(); renderDetail();
     });
   }
 
-  function approve() {
+  async function approve() {
     const r = Store.get(currentId);
     if (!r.cert.diagnosis && !confirm('Diagnosis is empty. Approve anyway?')) return;
 
-    if (!r.cert.controlNo) {
-      const s = Store.settings();
-      r.cert.controlNo = `${s.controlPrefix}${s.controlPrefix ? '-' : ''}${pad(s.nextControl, 3)}`;
-      s.nextControl = Number(s.nextControl) + 1;
-      Store.saveSettings(s);
+    $('#approveBtn').disabled = true;
+    try {
+      // Save any pending edits first, then approve (the server assigns the control number)
+      clearTimeout(Store.timers[r.id]);
+      const body = { cert: r.cert };
+      for (const k of PATIENT_KEYS) body[k] = r[k];
+      await run(() => api(`requests/${r.id}`, { method: 'PUT', body }));
+      const { request } = await run(() => api(`requests/${r.id}`, { method: 'POST', body: {} }));
+      delete Store.timers[r.id];
+      Store.put(request);
+      const s = await api('settings');
+      Store.cfg = s.settings;
+    } catch {
+      if ($('#approveBtn')) $('#approveBtn').disabled = false;
+      return;
     }
-    r.status = 'approved';
-    r.approvedAt = Date.now();
-    Store.upsert(r);
     renderList();
     renderDetail();
     setTimeout(() => window.print(), 150);
@@ -298,20 +371,26 @@
 
   function loadSettingsForm() {
     const s = Store.settings();
-    for (const k of Object.keys(Store.DEFAULT_SETTINGS)) if (sf[k]) sf[k].value = s[k];
+    for (const k of Object.keys(s)) if (sf[k]) sf[k].value = s[k];
     sf.newPassword.value = '';
     $('#settingsMsg').textContent = '';
   }
 
-  sf.addEventListener('submit', (e) => {
+  sf.addEventListener('submit', async (e) => {
     e.preventDefault();
     const s = Store.settings();
-    for (const k of Object.keys(Store.DEFAULT_SETTINGS)) if (sf[k]) s[k] = sf[k].value.trim();
+    for (const k of Object.keys(s)) if (sf[k]) s[k] = sf[k].value.trim();
     s.nextControl = Math.max(1, parseInt(s.nextControl, 10) || 1);
-    if (sf.newPassword.value) s.adminPassword = sf.newPassword.value;
-    Store.saveSettings(s);
-    loadSettingsForm();
-    $('#settingsMsg').textContent = 'Settings saved.';
+    const pw = sf.newPassword.value;
+    $('#settingsMsg').textContent = 'Saving…';
+    try {
+      const { settings } = await run(() => api('settings', { method: 'PUT', body: { ...s, newPassword: pw } }));
+      Store.cfg = settings;
+      loadSettingsForm();
+      $('#settingsMsg').textContent = pw ? 'Settings and password saved.' : 'Settings saved.';
+    } catch {
+      $('#settingsMsg').textContent = '';
+    }
   });
 
   $('#exportBtn').addEventListener('click', () => {
@@ -330,17 +409,29 @@
       const data = JSON.parse(await file.text());
       if (!Array.isArray(data.requests)) throw new Error('bad file');
       if (!confirm(`Replace current data with ${data.requests.length} requests from this backup?`)) return;
-      Store.saveAll(data.requests);
-      if (data.settings) Store.saveSettings(data.settings);
+      await run(() => api('requests', { method: 'PUT', body: { requests: data.requests } }));
+      if (data.settings) {
+        const { adminPassword, ...rest } = data.settings;
+        await run(() => api('settings', { method: 'PUT', body: rest }));
+      }
+      await Store.load();
+      currentId = null;
       loadSettingsForm();
       $('#settingsMsg').textContent = 'Backup imported.';
-    } catch {
-      alert('That file is not a valid backup.');
+    } catch (ex) {
+      if (!ex.status) alert('That file is not a valid backup.');
     } finally {
       e.target.value = '';
     }
   });
 
   /* ---------------- Start ---------------- */
-  if (loggedIn()) showApp(); else $('#login').hidden = false;
+  api('session')
+    .then(s => s.admin ? showApp() : ($('#login').hidden = false))
+    .catch(() => ($('#login').hidden = false));
+
+  // Warn before leaving with unsaved edits
+  window.addEventListener('beforeunload', (e) => {
+    if ($('#saveState')?.textContent === 'Saving…') e.preventDefault();
+  });
 })();

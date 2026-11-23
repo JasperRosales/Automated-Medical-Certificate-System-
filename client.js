@@ -5,7 +5,7 @@
   document.getElementById('orgName').textContent = 'BatStateU Balayan · Health Services';
   form.date.value = todayISO();
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     err.textContent = '';
 
@@ -25,21 +25,22 @@
       return;
     }
 
-    const rec = {
-      id: makeId(),
-      ref: makeRef(),
-      status: 'pending',
-      createdAt: Date.now(),
-      name: data.name,
-      age: String(age),
-      sex: data.sex,
-      civilStatus: data.civilStatus,
-      address: data.address,
-      date: data.date
-    };
-    Store.upsert(rec);
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    let ref;
+    try {
+      ({ ref } = await api('requests', { method: 'POST', body: {
+        name: data.name, age: String(age), sex: data.sex,
+        civilStatus: data.civilStatus, address: data.address, date: data.date
+      } }));
+    } catch (ex) {
+      err.textContent = ex.message;
+      return;
+    } finally {
+      btn.disabled = false;
+    }
 
-    document.getElementById('refCode').textContent = rec.ref;
+    document.getElementById('refCode').textContent = ref;
     document.getElementById('formCard').hidden = true;
     document.getElementById('successCard').hidden = false;
   });

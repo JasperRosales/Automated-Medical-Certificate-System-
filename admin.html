@@ -65,14 +65,14 @@
       </div>
 
       <h2>Admin password</h2>
-      <p class="hint" style="margin-top:6px">Leave blank to keep the current password.</p>
+      <p class="hint" style="margin-top:6px">Leave blank to keep the current password. At least 8 characters.</p>
       <label>New password</label><input name="newPassword" type="password" autocomplete="new-password">
 
       <button class="btn primary block" type="submit">Save settings</button>
       <div class="muted" id="settingsMsg" style="margin-top:10px;text-align:center"></div>
 
       <h2>Data</h2>
-      <p class="hint" style="margin-top:6px">Requests are stored in this browser only. Export a backup regularly.</p>
+      <p class="hint" style="margin-top:6px">Requests are stored in the online database. Export a backup now and then.</p>
       <div class="toolbar">
         <button class="btn" type="button" id="exportBtn">Export backup (.json)</button>
         <label class="btn" style="margin:0;font-weight:600">Import backup<input type="file" id="importFile" accept="application/json" hidden></label>
