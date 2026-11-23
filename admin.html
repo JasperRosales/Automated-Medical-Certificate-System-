@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Certificates · Admin</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section class="login card" id="login" hidden>
+  <div class="org">Admin</div>
+  <h2 style="margin:0 0 6px">Sign in</h2>
+  <form id="loginForm">
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" autofocus>
+    <div class="error" id="loginErr"></div>
+    <button class="btn primary block" type="submit">Sign in</button>
+  </form>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+  <header class="topbar no-print">
+    <h1>Medical Certificates</h1>
+    <button class="tab active" data-view="requestsView">Requests</button>
+    <button class="tab" data-view="settingsView">Settings</button>
+    <span class="spacer"></span>
+    <button class="btn" id="logoutBtn">Log out</button>
+  </header>
+
+  <!-- Requests -->
+  <main class="admin-main" id="requestsView">
+    <aside class="card list no-print">
+      <input id="search" placeholder="Search name or reference code">
+      <div class="filters">
+        <button data-filter="pending" class="active">Pending <span id="cPending"></span></button>
+        <button data-filter="approved">Approved <span id="cApproved"></span></button>
+        <button data-filter="all">All</button>
+      </div>
+      <div class="items" id="items"></div>
+    </aside>
+    <section id="detail">
+      <div class="card empty-state">Select a request to review it.</div>
+    </section>
+  </main>
+
+  <!-- Settings -->
+  <main id="settingsView" hidden>
+    <form class="card settings" id="settingsForm">
+      <h2>Letterhead</h2>
+      <label>Institution name</label><input name="instName">
+      <label>Office / campus</label><input name="instOffice">
+      <label>Address</label><input name="instAddress">
+      <label>Contact line</label><input name="instContact">
+
+      <h2>Default physician</h2>
+      <p class="hint" style="margin-top:6px">Pre-filled on new certificates. You can still change it on each certificate.</p>
+      <label>Name</label><input name="physician">
+      <div class="row">
+        <div><label>Position</label><input name="position"></div>
+        <div><label>License No.</label><input name="license"></div>
+      </div>
+
+      <h2>Numbering &amp; validity</h2>
+      <div class="row">
+        <div><label>Control No. prefix</label><input name="controlPrefix"></div>
+        <div><label>Next number</label><input name="nextControl" type="number" min="1"></div>
+      </div>
+      <label>Valid for (months)</label><input name="validMonths" type="number" min="0">
+
+      <h2>Admin password</h2>
+      <p class="hint" style="margin-top:6px">Leave blank to keep the current password.</p>
+      <label>New password</label><input name="newPassword" type="password" autocomplete="new-password">
+
+      <button class="btn primary block" type="submit">Save settings</button>
+      <div class="muted" id="settingsMsg" style="margin-top:10px;text-align:center"></div>
+
+      <h2>Data</h2>
+      <p class="hint" style="margin-top:6px">Requests are stored in this browser only. Export a backup regularly.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" id="exportBtn">Export backup (.json)</button>
+        <label class="btn" style="margin:0;font-weight:600">Import backup<input type="file" id="importFile" accept="application/json" hidden></label>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script src="shared.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

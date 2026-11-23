@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request a Medical Certificate</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="client">
+
+  <section class="card" id="formCard">
+    <div class="org" id="orgName"></div>
+    <h1>Medical Certificate Request</h1>
+    <p class="hint">Fill in your details and submit. The clinic staff will complete and print your certificate.</p>
+
+    <form id="requestForm" novalidate>
+      <label for="name">Full name</label>
+      <input id="name" name="name" placeholder="e.g. Juan A. Dela Cruz" required>
+
+      <div class="row">
+        <div>
+          <label for="age">Age</label>
+          <input id="age" name="age" type="number" min="1" max="130" required>
+        </div>
+        <div>
+          <label for="sex">Sex</label>
+          <select id="sex" name="sex" required>
+            <option value="">Select…</option><option>Female</option><option>Male</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="civilStatus">Civil status</label>
+      <select id="civilStatus" name="civilStatus" required>
+        <option value="">Select…</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option>
+      </select>
+
+      <label for="address">Address</label>
+      <input id="address" name="address" placeholder="Barangay, Municipality, Province" required>
+
+      <label for="date">Date</label>
+      <input id="date" name="date" type="date" required>
+
+      <div class="error" id="formError"></div>
+      <button class="btn primary block" type="submit">Submit request</button>
+    </form>
+  </section>
+
+  <section class="card success" id="successCard" hidden>
+    <div class="org">Request submitted</div>
+    <p>Your reference code is</p>
+    <div class="ref" id="refCode"></div>
+    <p class="hint">Show this code to the clinic staff so they can find your request.</p>
+    <button class="btn block" id="anotherBtn" type="button">Submit another request</button>
+  </section>
+
+</main>
+
+<script src="shared.js"></script>
+<script src="client.js"></script>
+</body>
+</html>
