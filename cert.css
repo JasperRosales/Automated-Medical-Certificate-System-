@@ -1,6 +1,7 @@
-/* Official BatStateU Balayan medical certificate, A5 landscape (210 x 148 mm).
- * Positions are in mm, measured from the printed form. Header is fixed. */
-@page { size: 210mm 148mm; margin: 0; }
+/* Official BatStateU Balayan medical certificate (210 x 148 mm, half of A4).
+ * Positions are in mm, measured from the printed form. Header is fixed.
+ * Prints on the top half of an A4 sheet. */
+@page { size: A4 portrait; margin: 0; }
 
 .cert-wrap { overflow-x: auto; padding: 4px 0 12px; }
 .page {
@@ -41,6 +42,19 @@
 .page .h-title{ --fs: 12.4pt; font-weight: bold; }
 .page .ctrl { color: #8b1a2b; font-weight: bold; }
 .page .sig-name { font-weight: bold; --fs: 8.75pt; }
+.page .sig-sub { --fs: 7.6pt; }
+
+/* Purpose sentence flows as normal text so a long purpose wraps instead of overlapping. */
+.page .para {
+  position: absolute; left: calc(var(--x) * 1mm); width: calc((184.9 - var(--x)) * 1mm);
+  top: calc(var(--y) * 1mm - 8.7pt * 0.84 - (4.3mm - 8.7pt) / 2);
+  font-size: 8.7pt; line-height: 4.3mm;
+}
+.page .para .blank {
+  display: inline-block; min-width: 34mm; text-align: center; line-height: 1;
+  border-bottom: 0.6pt solid #000; padding: 0 1mm 0.9mm; margin-bottom: -0.9mm;
+}
+.page .para span[contenteditable] { min-width: 20mm; }
 
 /* On-screen editing */
 .page [contenteditable] { outline: none; background: #fff9e0; border-radius: 1px; }

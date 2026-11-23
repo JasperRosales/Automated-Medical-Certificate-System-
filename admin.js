@@ -112,8 +112,7 @@
     ['consultDate', 59.5, 100.3, 87.8, 89.0, 'center', 'date'],
     ['diagnosis', 45.6, 184.9, 96.3, 97.8, 'left', 'click to type diagnosis'],
     ['remarks1', 45.6, 184.9, 101.9, 103.2, 'left', 'click to type remarks'],
-    ['remarks2', 45.6, 184.9, 106.5, 107.8, 'left', ''],
-    ['purpose', 111.8, 146.1, 115.6, 117.0, 'center', 'purpose']
+    ['remarks2', 45.6, 184.9, 106.5, 107.8, 'left', '']
   ];
 
   // Fixed printed text: [class, x, baseline y, text]. Not editable.
@@ -148,29 +147,34 @@
     ['l', 102.0, 87.8, '.'],
     ['l', 26.4, 96.3, 'Diagnosis:'],
     ['l', 26.4, 101.9, 'Remarks:'],
-    ['l', 26.4, 115.6, 'This medical certificate is issued upon request of the patient and for'],
-    ['l', 147.7, 115.6, 'purpose only and not for'],
-    ['l', 27.7, 119.9, 'medico-legal purposes.']
   ];
+
+  // Everything from the title down sits this many mm lower than on the
+  // original form, to give the title some space below the header.
+  const BODY_SHIFT = 3;
+  const dy = y => (y >= 46 ? +(y + BODY_SHIFT).toFixed(2) : y);
 
   function certificateHTML(rec, s) {
     const c = rec.cert;
     const val = k => PATIENT_KEYS.includes(k) ? rec[k] : c[k];
     const ed = (k, ph) => `contenteditable="true" data-k="${k}" data-ph="${esc(ph)}"`;
     const fixed = STATIC.map(([cls, x, y, text]) =>
-      `<div class="t ${cls}" style="--x:${x};--y:${y}">${esc(text)}</div>`).join('');
+      `<div class="t ${cls}" style="--x:${x};--y:${dy(y)}">${esc(text)}</div>`).join('');
     const fields = FIELDS.map(([k, x1, x2, y, ly, al, ph, extra = '']) =>
-      `<div class="line" style="--x1:${x1};--x2:${x2};--y:${ly}"></div>` +
-      `<div class="v ${al}" ${ed(k, ph)} style="--x1:${x1};--x2:${x2};--y:${y};${extra}">${esc(val(k))}</div>`).join('');
+      `<div class="line" style="--x1:${x1};--x2:${x2};--y:${dy(ly)}"></div>` +
+      `<div class="v ${al}" ${ed(k, ph)} style="--x1:${x1};--x2:${x2};--y:${dy(y)};${extra}">${esc(val(k))}</div>`).join('');
 
     // Bottom-left (about 27-73 mm across, 121-142 mm down) stays blank for the Valid Until stamp.
     return `<div class="page">
       <img class="seal" src="seal.png" alt="">
       ${fixed}
       ${fields}
-      <div class="t c sig-name" style="--x:145.6;--y:131.3"><span ${ed('signatoryName', "physician's name")}>${esc(c.signatoryName)}</span></div>
-      <div class="t c" style="--x:145.6;--y:134.6"><span ${ed('signatoryTitle', 'position')}>${esc(c.signatoryTitle)}</span></div>
-      <div class="t c" style="--x:145.6;--y:138.1">License No.: <span ${ed('license', '—')}>${esc(c.license)}</span></div>
+      <div class="para" style="--x:26.4;--y:${dy(115.6)}">This medical certificate is issued upon request of the patient and for
+        <span class="blank"><span ${ed('purpose', 'purpose')}>${esc(c.purpose)}</span></span>
+        purpose only and not for medico-legal purposes.</div>
+      <div class="t c sig-name" style="--x:145.6;--y:${dy(131.3)}"><span ${ed('signatoryName', "physician's name")}>${esc(c.signatoryName)}</span></div>
+      <div class="t c sig-sub" style="--x:145.6;--y:${dy(134.4)}"><span ${ed('signatoryTitle', 'position')}>${esc(c.signatoryTitle)}</span></div>
+      <div class="t c sig-sub" style="--x:145.6;--y:${dy(137.6)}">License No.: <span ${ed('license', '—')}>${esc(c.license)}</span></div>
     </div>`;
   }
 
