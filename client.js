@@ -2,7 +2,7 @@
   const form = document.getElementById('requestForm');
   const err = document.getElementById('formError');
 
-  document.getElementById('orgName').textContent = Store.settings().instName;
+  document.getElementById('orgName').textContent = 'BatStateU Balayan · Health Services';
   form.date.value = todayISO();
 
   form.addEventListener('submit', (e) => {

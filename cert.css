@@ -1,0 +1,65 @@
+/* Official BatStateU Balayan medical certificate, A5 landscape (210 x 148 mm).
+ * Positions are in mm, measured from the printed form. Header is fixed. */
+@page { size: 210mm 148mm; margin: 0; }
+
+.cert-wrap { overflow-x: auto; padding: 4px 0 12px; }
+.page {
+  position: relative; width: 210mm; height: 148mm; margin: 0 auto;
+  background: #fff; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.25);
+  font-family: "Times New Roman", "Liberation Serif", Times, serif; color: #000;
+}
+.page * { box-sizing: border-box; margin: 0; padding: 0; }
+
+.page .t {
+  position: absolute; top: calc(var(--y) * 1mm - var(--fs) * 0.84);
+  font-size: var(--fs); line-height: 1; white-space: nowrap; --fs: 8.7pt;
+}
+.page .l { left: calc(var(--x) * 1mm); }
+.page .c { left: calc(var(--x) * 1mm); transform: translateX(-50%); }
+.page .r { right: calc(210mm - var(--x) * 1mm); }
+.page .line {
+  position: absolute; left: calc(var(--x1) * 1mm); width: calc((var(--x2) - var(--x1)) * 1mm);
+  top: calc(var(--y) * 1mm); border-top: 0.6pt solid #000;
+}
+.page .v {
+  position: absolute; left: calc(var(--x1) * 1mm); width: calc((var(--x2) - var(--x1)) * 1mm);
+  top: calc(var(--y) * 1mm - var(--fs) * 0.84); font-size: var(--fs); line-height: 1;
+  white-space: nowrap; overflow: visible; --fs: 8.7pt;
+}
+.page .v.center { text-align: center; }
+.page .v.left { padding-left: var(--pad, 1.6mm); }
+.page .cap { font-style: italic; font-weight: bold; --fs: 6.9pt; }
+
+.page .ref { --fs: 8.8pt; }
+.page .seal { position: absolute; left: 30.3mm; top: 14.6mm; width: 26.6mm; }
+.page .h-rep  { --fs: 10.2pt; font-weight: bold; letter-spacing: 0.06em; }
+.page .h-bsu  { --fs: 12.9pt; font-weight: bold; letter-spacing: 0.03em; }
+.page .h-tneu { --fs: 10.65pt; font-weight: bold; font-family: "Arial Narrow", "Liberation Sans Narrow", Arial, sans-serif; font-stretch: condensed; }
+.page .h-camp { --fs: 9.5pt; font-weight: bold; }
+.page .h-addr { --fs: 7.9pt; font-weight: bold; }
+.page .h-tel  { --fs: 7.8pt; }
+.page .h-title{ --fs: 12.4pt; font-weight: bold; }
+.page .ctrl { color: #8b1a2b; font-weight: bold; }
+.page .sig-name { font-weight: bold; --fs: 8.75pt; }
+
+/* Signature image sits just above the signatory name. */
+.page .sig-img {
+  position: absolute; left: 145.6mm; bottom: calc(148mm - 128.6mm);
+  transform: translateX(-50%); max-width: 48mm; max-height: 15mm;
+}
+
+/* On-screen editing */
+.page [contenteditable] { outline: none; background: #fff9e0; border-radius: 1px; }
+.page [contenteditable]:hover { background: #fff1b8; }
+.page [contenteditable]:focus { background: #ffe98a; }
+.page span[contenteditable] { display: inline-block; min-width: 12mm; }
+.page [contenteditable]:empty::before { content: attr(data-ph); color: #b9b3a6; font-style: italic; font-weight: normal; }
+
+@media print {
+  html, body { background: #fff !important; }
+  body * { visibility: hidden; }
+  .page, .page * { visibility: visible; }
+  .page { position: fixed; left: 0; top: 0; margin: 0; box-shadow: none; }
+  .page [contenteditable] { background: none !important; }
+  .page [contenteditable]:empty::before { content: ""; }
+}

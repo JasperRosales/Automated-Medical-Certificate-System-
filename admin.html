@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Medical Certificates · Admin</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="cert.css">
 </head>
 <body>
 
@@ -49,12 +50,6 @@
   <!-- Settings -->
   <main id="settingsView" hidden>
     <form class="card settings" id="settingsForm">
-      <h2>Letterhead</h2>
-      <label>Institution name</label><input name="instName">
-      <label>Office / campus</label><input name="instOffice">
-      <label>Address</label><input name="instAddress">
-      <label>Contact line</label><input name="instContact">
-
       <h2>Default physician</h2>
       <p class="hint" style="margin-top:6px">Pre-filled on new certificates. You can still change it on each certificate.</p>
       <label>Name</label><input name="physician">
@@ -63,12 +58,19 @@
         <div><label>License No.</label><input name="license"></div>
       </div>
 
-      <h2>Numbering &amp; validity</h2>
+      <h2>Signature</h2>
+      <p class="hint" style="margin-top:6px">Photo or scan of the physician's signature on white paper. It is printed above the name on every certificate. Saved right away.</p>
+      <div class="sig-preview"><img id="sigPreview" alt="" hidden><span class="muted" id="sigNone">No signature uploaded.</span></div>
+      <div class="toolbar">
+        <label class="btn" style="margin:0;font-weight:600">Upload signature<input type="file" id="sigFile" accept="image/*" hidden></label>
+        <button class="btn danger" type="button" id="sigRemove">Remove</button>
+      </div>
+
+      <h2>Numbering</h2>
       <div class="row">
         <div><label>Control No. prefix</label><input name="controlPrefix"></div>
         <div><label>Next number</label><input name="nextControl" type="number" min="1"></div>
       </div>
-      <label>Valid for (months)</label><input name="validMonths" type="number" min="0">
 
       <h2>Admin password</h2>
       <p class="hint" style="margin-top:6px">Leave blank to keep the current password.</p>

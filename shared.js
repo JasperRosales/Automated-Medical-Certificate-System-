@@ -8,16 +8,12 @@ const Store = {
   SETTINGS_KEY: 'medcert_settings',
 
   DEFAULT_SETTINGS: {
-    instName: 'Sample University',
-    instOffice: 'Health Services Office',
-    instAddress: '123 Campus Road, City, Province 0000',
-    instContact: 'Tel. No.: 000-0000 · health@example.edu',
     physician: '',
     position: '',
     license: '',
+    signature: '',
     controlPrefix: 'MC',
     nextControl: 1,
-    validMonths: 6,
     adminPassword: 'admin123'
   },
 
