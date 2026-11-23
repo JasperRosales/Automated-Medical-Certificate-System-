@@ -42,12 +42,6 @@
 .page .ctrl { color: #8b1a2b; font-weight: bold; }
 .page .sig-name { font-weight: bold; --fs: 8.75pt; }
 
-/* Signature image sits just above the signatory name. */
-.page .sig-img {
-  position: absolute; left: 145.6mm; bottom: calc(148mm - 128.6mm);
-  transform: translateX(-50%); max-width: 48mm; max-height: 15mm;
-}
-
 /* On-screen editing */
 .page [contenteditable] { outline: none; background: #fff9e0; border-radius: 1px; }
 .page [contenteditable]:hover { background: #fff1b8; }

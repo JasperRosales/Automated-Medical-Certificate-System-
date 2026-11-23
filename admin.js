@@ -168,7 +168,6 @@
       <img class="seal" src="seal.png" alt="">
       ${fixed}
       ${fields}
-      ${isImg(s.signature) ? `<img class="sig-img" src="${esc(s.signature)}" alt="">` : ''}
       <div class="t c sig-name" style="--x:145.6;--y:131.3"><span ${ed('signatoryName', "physician's name")}>${esc(c.signatoryName)}</span></div>
       <div class="t c" style="--x:145.6;--y:134.6"><span ${ed('signatoryTitle', 'position')}>${esc(c.signatoryTitle)}</span></div>
       <div class="t c" style="--x:145.6;--y:138.1">License No.: <span ${ed('license', '—')}>${esc(c.license)}</span></div>
@@ -291,7 +290,6 @@
     const s = Store.settings();
     for (const k of Object.keys(Store.DEFAULT_SETTINGS)) if (sf[k]) sf[k].value = s[k];
     sf.newPassword.value = '';
-    showSignature(s.signature);
     $('#settingsMsg').textContent = '';
   }
 
@@ -304,69 +302,6 @@
     Store.saveSettings(s);
     loadSettingsForm();
     $('#settingsMsg').textContent = 'Settings saved.';
-  });
-
-  /* ---------------- Signature ---------------- */
-  const isImg = v => typeof v === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(v);
-
-  function showSignature(src) {
-    const ok = isImg(src);
-    $('#sigPreview').hidden = !ok;
-    $('#sigNone').hidden = ok;
-    if (ok) $('#sigPreview').src = src; else $('#sigPreview').removeAttribute('src');
-  }
-
-  // Scale the image down, crop to the ink, and make the paper transparent
-  function processSignature(img) {
-    const scale = Math.min(1, 900 / img.width, 400 / img.height);
-    const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
-    const cv = document.createElement('canvas');
-    cv.width = w; cv.height = h;
-    const ctx = cv.getContext('2d');
-    ctx.drawImage(img, 0, 0, w, h);
-    const d = ctx.getImageData(0, 0, w, h), px = d.data;
-    let x0 = w, y0 = h, x1 = -1, y1 = -1;
-    for (let i = 0; i < px.length; i += 4) {
-      const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
-      const a = lum > 200 ? 0 : lum < 140 ? 255 : Math.round((200 - lum) / 60 * 255);
-      px[i + 3] = Math.min(px[i + 3], a);
-      if (px[i + 3] > 40) {
-        const p = i / 4, x = p % w, y = (p - x) / w;
-        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
-      }
-    }
-    if (x1 < 0) return null;
-    ctx.putImageData(d, 0, 0);
-    const out = document.createElement('canvas');
-    out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
-    out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
-    return out.toDataURL('image/png');
-  }
-
-  $('#sigFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(img.src);
-      const data = processSignature(img);
-      if (!data) { alert('No signature found in that image. Use dark ink on white paper.'); return; }
-      const s = Store.settings();
-      s.signature = data;
-      try { Store.saveSettings(s); } catch { alert('Image is too large to save. Try a smaller photo.'); return; }
-      showSignature(data);
-      $('#settingsMsg').textContent = 'Signature saved.';
-    };
-    img.onerror = () => alert('Could not read that image.');
-    img.src = URL.createObjectURL(file);
-  });
-
-  $('#sigRemove').addEventListener('click', () => {
-    const s = Store.settings();
-    s.signature = '';
-    Store.saveSettings(s);
-    showSignature('');
   });
 
   $('#exportBtn').addEventListener('click', () => {

@@ -61,5 +61,3 @@ input:focus, select:focus { outline: 2px solid #e8c9c9; border-color: var(--acce
 .settings h2 { font-size: 15px; margin: 24px 0 0; color: var(--accent); }
 .settings h2:first-child { margin-top: 0; }
 
-.sig-preview { margin: 10px 0; padding: 10px; border: 1px dashed var(--line); border-radius: 6px; text-align: center; background: #fff; }
-.sig-preview img { max-width: 100%; max-height: 90px; }

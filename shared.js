@@ -11,7 +11,6 @@ const Store = {
     physician: '',
     position: '',
     license: '',
-    signature: '',
     controlPrefix: 'MC',
     nextControl: 1,
     adminPassword: 'admin123'
