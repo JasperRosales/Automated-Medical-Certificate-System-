@@ -106,10 +106,6 @@
     ['issueDate', 133.6, 184.9, 57.7, 58.8, 'left', 'date issued'],
     ['name', 75.9, 148.9, 72.9, 74.0, 'center', 'name'],
     ['age', 152.7, 162.6, 72.9, 74.0, 'center', 'age'],
-    ['sex', 24.6, 41.1, 80.3, 81.5, 'left', 'sex', '--pad:1.8mm'],
-    ['civilStatus', 45.6, 64.4, 80.3, 81.5, 'center', 'status'],
-    ['address', 85.9, 156.4, 80.3, 81.5, 'left', 'address', '--pad:1.7mm'],
-    ['consultDate', 59.5, 100.3, 87.8, 89.0, 'center', 'date'],
     ['diagnosis', 45.6, 184.9, 96.3, 97.8, 'left', 'click to type diagnosis'],
     ['remarks1', 45.6, 184.9, 101.9, 103.2, 'left', 'click to type remarks'],
     ['remarks2', 45.6, 184.9, 106.5, 107.8, 'left', '']
@@ -136,15 +132,6 @@
     ['l', 149.6, 72.9, ','],
     ['c cap', 157.6, 77.0, 'Age'],
     ['l', 164.4, 72.9, 'years old,'],
-    ['c cap', 32.9, 84.2, 'Sex'],
-    ['l', 42.9, 80.3, ','],
-    ['c cap', 55.0, 84.2, 'Civil Status'],
-    ['l', 65.9, 80.3, ', a resident of'],
-    ['c cap', 121.1, 84.2, 'Address'],
-    ['l', 157.9, 80.3, ', was confined/'],
-    ['l', 26.4, 87.8, 'examined/consulted on'],
-    ['c cap', 80.3, 91.7, 'Date'],
-    ['l', 102.0, 87.8, '.'],
     ['l', 26.4, 96.3, 'Diagnosis:'],
     ['l', 26.4, 101.9, 'Remarks:'],
   ];
@@ -160,6 +147,9 @@
     const ed = (k, ph) => `contenteditable="true" data-k="${k}" data-ph="${esc(ph)}"`;
     const fixed = STATIC.map(([cls, x, y, text]) =>
       `<div class="t ${cls}" style="--x:${x};--y:${dy(y)}">${esc(text)}</div>`).join('');
+    // Underlined blank inside flowing text: grows with its value and pushes the words after it.
+    const blank = (k, ph, cap, w, cls = '') =>
+      `<span class="blank ${cls}" style="min-width:${w}mm"><span ${ed(k, ph)}>${esc(val(k))}</span><i class="bcap">${cap}</i></span>`;
     const fields = FIELDS.map(([k, x1, x2, y, ly, al, ph, extra = '']) =>
       `<div class="line" style="--x1:${x1};--x2:${x2};--y:${dy(ly)}"></div>` +
       `<div class="v ${al}" ${ed(k, ph)} style="--x1:${x1};--x2:${x2};--y:${dy(y)};${extra}">${esc(val(k))}</div>`).join('');
@@ -169,6 +159,10 @@
       <img class="seal" src="seal.png" alt="">
       ${fixed}
       ${fields}
+      <div class="para flow" style="--x:24.6;--y:${dy(80.3)}">${blank('sex', 'sex', 'Sex', 16.5)}&nbsp;,
+        ${blank('civilStatus', 'status', 'Civil Status', 18.8)}&nbsp;, a resident of
+        ${blank('address', 'address', 'Address', 70.5, 'grow')}&nbsp;, was
+        confined/<wbr>examined/consulted on ${blank('consultDate', 'date', 'Date', 40.8)}&nbsp;.</div>
       <div class="para" style="--x:26.4;--y:${dy(115.6)}">This medical certificate is issued upon request of the patient and for
         <span class="blank"><span ${ed('purpose', 'purpose')}>${esc(c.purpose)}</span></span>
         purpose only and not for medico-legal purposes.</div>
@@ -180,6 +174,18 @@
 
   // Shrink a value that is wider than its line so it never overlaps printed text
   function fit(el) {
+    const blank = el.parentElement?.classList.contains('grow') && el.parentElement;
+    if (blank) {
+      // Growing blank: shrink only once it would be wider than the whole line
+      el.style.removeProperty('font-size');
+      const max = 98 * 96 / 25.4; // room after "a resident of" on the first line
+      let size = 8.7;
+      while (blank.offsetWidth > max && size > 5.5) {
+        size -= 0.25;
+        el.style.fontSize = size + 'pt';
+      }
+      return;
+    }
     if (!el.classList.contains('v')) return;
     el.style.removeProperty('--fs');
     let size = 8.7;
@@ -215,7 +221,7 @@
       <div class="cert-wrap" id="cert">${certificateHTML(rec, Store.settings())}</div>`;
 
     const cert = $('#cert');
-    $$('.v', cert).forEach(fit);
+    $$('[data-k]', cert).forEach(fit);
 
     cert.addEventListener('input', (e) => {
       const el = e.target.closest('[data-k]');

@@ -56,6 +56,19 @@
 }
 .page .para span[contenteditable] { min-width: 20mm; }
 
+/* Sex / civil status / address / consultation date rows flow like text,
+ * so a long address pushes ", was confined/" along and wraps the rest. */
+.page .para.flow {
+  line-height: 7.5mm; top: calc(var(--y) * 1mm - 8.7pt * 0.84 - (7.5mm - 8.7pt) / 2);
+  padding-left: 1.8mm; text-indent: -1.8mm;
+}
+.page .flow .blank { position: relative; padding: 0 1.6mm 1mm; margin-bottom: -1mm; text-indent: 0; white-space: nowrap; }
+.page .flow .blank span[contenteditable] { min-width: 6mm; }
+.page .bcap {
+  position: absolute; left: 0; right: 0; top: calc(100% + 0.5mm); text-align: center;
+  font-style: italic; font-weight: bold; font-size: 6.9pt; line-height: 1;
+}
+
 /* On-screen editing */
 .page [contenteditable] { outline: none; background: #fff9e0; border-radius: 1px; }
 .page [contenteditable]:hover { background: #fff1b8; }
@@ -71,3 +84,6 @@
   .page [contenteditable] { background: none !important; }
   .page [contenteditable]:empty::before { content: ""; }
 }
+.page .flow .blank span[contenteditable] { text-align: center; }
+.page .flow .blank.grow { text-align: left; }
+.page .flow .blank.grow span[contenteditable] { text-align: left; }
