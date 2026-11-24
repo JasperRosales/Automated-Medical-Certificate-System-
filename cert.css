@@ -92,12 +92,22 @@
 /* "Valid Until" rubber stamp, bottom-left */
 .page .stamp {
   position: absolute; left: 26mm; top: calc(var(--y) * 1mm); width: 50mm;
-  padding: 1.2mm 1.5mm; border: 0.9pt solid #1d3c8f; outline: 0.4pt solid #1d3c8f; outline-offset: 0.6mm;
-  color: #1d3c8f; text-align: center; line-height: 1.15; transform: rotate(-2deg);
+  padding: 1.2mm 1.5mm; border: 0.9pt solid #c8102e; outline: 0.4pt solid #c8102e; outline-offset: 0.6mm;
+  color: #c8102e; text-align: center; line-height: 1.15; transform: rotate(-2deg);
   font-family: Arial, "Liberation Sans", sans-serif; font-weight: bold;
 }
 .page .stamp .st-1 { font-size: 7pt; letter-spacing: 0.02em; }
 .page .stamp .st-2 { font-size: 6pt; font-weight: normal; }
-.page .stamp .st-3 { font-size: 7.5pt; letter-spacing: 0.15em; margin-top: 0.8mm; border-top: 0.5pt solid #1d3c8f; padding-top: 0.6mm; }
+.page .stamp .st-3 { font-size: 7.5pt; letter-spacing: 0.15em; margin-top: 0.8mm; border-top: 0.5pt solid #c8102e; padding-top: 0.6mm; }
 .page .stamp .st-4 { font-size: 8.5pt; }
 .page .stamp span[contenteditable] { min-width: 20mm; }
+
+/* ▾ button that opens the quick-pick list (screen only) */
+.page .pick-btn {
+  position: absolute; left: calc(var(--x) * 1mm + 1mm); top: calc(var(--y) * 1mm - 3.6mm);
+  width: 5.5mm; height: 4.4mm; padding: 0; border: 1px solid #d9c9a3; border-radius: 3px;
+  background: #fff3c4; color: #6b5300; font-size: 8pt; line-height: 1; cursor: pointer;
+}
+.page .pick-btn:hover { background: #ffe98a; }
+.page .pick-btn.inline { position: relative; left: 0; top: -0.3mm; margin-left: 0.8mm; vertical-align: middle; }
+@media print { .page .pick-btn { display: none !important; } }

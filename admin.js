@@ -223,7 +223,8 @@
       `<span class="blank ${cls}" style="min-width:${w}mm"><span ${ed(k, ph)}>${esc(val(k))}</span><i class="bcap">${cap}</i></span>`;
     const fields = FIELDS.map(([k, x1, x2, y, ly, al, ph, extra = '']) =>
       `<div class="line" style="--x1:${x1};--x2:${x2};--y:${dy(ly)}"></div>` +
-      `<div class="v ${al}" ${ed(k, ph)} style="--x1:${x1};--x2:${x2};--y:${dy(y)};${extra}">${esc(val(k))}</div>`).join('');
+      `<div class="v ${al}" ${ed(k, ph)} style="--x1:${x1};--x2:${x2};--y:${dy(y)};${extra}">${esc(val(k))}</div>` +
+      (PICK[k] ? `<button type="button" class="pick-btn" data-pick="${k}" title="Choose from list" style="--x:${x2};--y:${dy(y)}">&#9662;</button>` : '')).join('');
 
     return `<div class="page">
       <img class="seal" src="seal.png" alt="">
@@ -234,7 +235,7 @@
         ${blank('address', 'address', 'Address', 70.5, 'grow')}&nbsp;, was
         confined/<wbr>examined/consulted on ${blank('consultDate', 'date', 'Date', 40.8)}&nbsp;.</div>
       <div class="para" style="--x:26.4;--y:${dy(115.6)}">This medical certificate is issued upon request of the patient and for
-        <span class="blank"><span ${ed('purpose', 'purpose')}>${esc(c.purpose)}</span></span>
+        <span class="blank"><span ${ed('purpose', 'purpose')}>${esc(c.purpose)}</span></span><button type="button" class="pick-btn inline" data-pick="purpose" title="Choose from list">&#9662;</button>
         purpose only and not for medico-legal purposes.</div>
       <div class="stamp" style="--y:${dy(122.5)}">
         <div class="st-1">BATANGAS STATE UNIVERSITY</div>
@@ -336,7 +337,7 @@
 
     // Clear leftover <br> so placeholders reappear when a field is emptied
     cert.addEventListener('focusin', (e) => { if (PICK[e.target.dataset?.k]) showPicker(e.target); });
-    cert.addEventListener('focusout', hidePicker);
+    cert.addEventListener('focusout', (e) => { if (!e.relatedTarget?.closest?.('.pick-btn')) hidePicker(); });
     cert.addEventListener('input', (e) => { if (PICK[e.target.dataset?.k]) showPicker(e.target, true); });
 
     cert.addEventListener('blur', (e) => {
@@ -389,6 +390,7 @@
     const copy = () => {
       const p = page.cloneNode(true);
       $$('[contenteditable]', p).forEach(el => el.removeAttribute('contenteditable'));
+      $$('.pick-btn', p).forEach(el => el.remove());
       return p;
     };
     const half = () => Object.assign(document.createElement('div'), { className: 'half' });
@@ -434,6 +436,19 @@
     el.dispatchEvent(new Event('input', { bubbles: true }));
     hidePicker();
     el.blur();
+  });
+
+  // The ▾ button opens the full list without bringing up the keyboard
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.pick-btn');
+    if (btn) {
+      const el = $(`[data-k="${btn.dataset.pick}"]`, btn.closest('.page'));
+      if (pickTarget === el && !picker.hidden) return hidePicker();
+      showPicker(el, false);
+      if (picker.hidden) alert('No options yet. Add them in Settings → Quick picks.');
+      return;
+    }
+    if (!picker.hidden && !picker.contains(e.target) && e.target !== pickTarget) hidePicker();
   });
 
   async function approve() {
@@ -525,6 +540,7 @@
         const page = $('.page', box);
         $$('[data-k]', page).forEach(fit);
         $$('[contenteditable]', page).forEach(el => el.removeAttribute('contenteditable'));
+        $$('.pick-btn', page).forEach(el => el.remove());
         await Promise.all($$('img', page).map(img => img.decode().catch(() => {})));
         const canvas = await window.html2canvas(page, { scale: 3, backgroundColor: '#ffffff', logging: false });
         const img = canvas.toDataURL('image/jpeg', 0.92);
