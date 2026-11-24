@@ -552,7 +552,7 @@
         pdf.setLineWidth(0.15);
         pdf.line(0, H / 2, W, H / 2);
       }
-      pdf.save(`certificates-${dlDate.value}.pdf`);
+      pdf.save(`Medical Certificate - ${fmtDate(dlDate.value)}.pdf`);
       msg.textContent = `Downloaded ${ids.length} certificate${ids.length > 1 ? 's' : ''}.`;
     } catch (e) {
       msg.textContent = 'Download failed: ' + e.message;
