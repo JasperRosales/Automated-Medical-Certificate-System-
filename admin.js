@@ -249,6 +249,16 @@
     </div>`;
   }
 
+  // On small screens, scale the certificate down to the available width
+  function fitToScreen() {
+    const wrap = $('#cert'), page = wrap && $('.page', wrap);
+    if (!page) return;
+    page.style.zoom = '';
+    const z = Math.min(1, (wrap.clientWidth - 8) / page.offsetWidth);
+    if (z < 1) page.style.zoom = z.toFixed(3);
+  }
+  window.addEventListener('resize', fitToScreen);
+
   // Shrink a value that is wider than its line so it never overlaps printed text
   function fit(el) {
     const blank = el.parentElement?.classList.contains('grow') && el.parentElement;
@@ -299,6 +309,7 @@
       <div class="cert-wrap" id="cert">${certificateHTML(rec, Store.settings())}</div>`;
 
     const cert = $('#cert');
+    fitToScreen();
     $$('[data-k]', cert).forEach(fit);
 
     cert.addEventListener('input', (e) => {
@@ -389,6 +400,7 @@
     if (!page) return;
     const copy = () => {
       const p = page.cloneNode(true);
+      p.style.zoom = '';
       $$('[contenteditable]', p).forEach(el => el.removeAttribute('contenteditable'));
       $$('.pick-btn', p).forEach(el => el.remove());
       return p;
