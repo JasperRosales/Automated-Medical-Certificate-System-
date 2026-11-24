@@ -37,3 +37,12 @@ function fmtDatePlusMonths(iso, months) {
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+// "September 1, 2026" + 6 months -> "March 1, 2027" (clamps to month end). '' if unparseable.
+function addMonthsText(text, months) {
+  const d = new Date(text);
+  if (!text || isNaN(d)) return '';
+  const r = new Date(d.getFullYear(), d.getMonth() + months, d.getDate());
+  if (r.getDate() !== d.getDate()) r.setDate(0);
+  return r.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}

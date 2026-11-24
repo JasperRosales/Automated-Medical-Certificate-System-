@@ -13,8 +13,16 @@ export const DEFAULT_SETTINGS = {
   position: '',
   license: '',
   controlPrefix: 'MC',
-  nextControl: 1
+  nextControl: 1,
+  diagnosisOptions: [],
+  remarksOptions: [],
+  purposeOptions: []
 };
+
+// Quick-pick list: accepts an array or newline-separated text.
+const optionList = a => (Array.isArray(a) ? a : String(a ?? '').split('\n'))
+  .map(x => String(x).trim().slice(0, 200)).filter(Boolean)
+  .filter((x, i, all) => all.indexOf(x) === i).slice(0, 100);
 
 /* ---------------- Schema (created on first use) ---------------- */
 let ready;
@@ -59,7 +67,7 @@ export const toRecord = r => ({
 
 const LIMITS = { name: 120, age: 3, sex: 20, civilStatus: 20, address: 200, date: 40 };
 const CERT_KEYS = ['controlNo', 'issueDate', 'consultDate', 'diagnosis', 'remarks1', 'remarks2',
-  'purpose', 'signatoryName', 'signatoryTitle', 'license'];
+  'purpose', 'signatoryName', 'signatoryTitle', 'license', 'validUntil'];
 
 // Trim and length-limit patient fields; returns null for anything not a string.
 export function cleanPatient(body, { partial = false } = {}) {
@@ -91,7 +99,10 @@ export async function saveSettings(s) {
     position: String(s.position ?? '').slice(0, 120),
     license: String(s.license ?? '').slice(0, 60),
     controlPrefix: String(s.controlPrefix ?? '').slice(0, 20),
-    nextControl: Math.max(1, parseInt(s.nextControl, 10) || 1)
+    nextControl: Math.max(1, parseInt(s.nextControl, 10) || 1),
+    diagnosisOptions: optionList(s.diagnosisOptions),
+    remarksOptions: optionList(s.remarksOptions),
+    purposeOptions: optionList(s.purposeOptions)
   };
   await sql`insert into settings (key, value) values ('general', ${JSON.stringify(v)}::jsonb)
             on conflict (key) do update set value = excluded.value`;

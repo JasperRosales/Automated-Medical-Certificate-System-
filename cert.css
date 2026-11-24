@@ -1,7 +1,7 @@
 /* Official BatStateU Balayan medical certificate (210 x 148 mm, half of A4).
  * Positions are in mm, measured from the printed form. Header is fixed.
- * Prints on the top half of an A4 sheet. */
-@page { size: A4 portrait; margin: 0; }
+ * Prints two copies on one legal sheet. */
+@page { size: legal portrait; margin: 0; }
 
 .cert-wrap { overflow-x: auto; padding: 4px 0 12px; }
 .page {
@@ -77,13 +77,26 @@
 .page [contenteditable]:empty::before { content: attr(data-ph); color: #b9b3a6; font-style: italic; font-weight: normal; }
 
 @media print {
-  html, body { background: #fff !important; }
-  body * { visibility: hidden; }
-  .page, .page * { visibility: visible; }
-  .page { position: fixed; left: 0; top: 0; margin: 0; box-shadow: none; }
-  .page [contenteditable] { background: none !important; }
-  .page [contenteditable]:empty::before { content: ""; }
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  body > *:not(#printSheet) { display: none !important; }
+  #printSheet { display: block; width: 215.9mm; padding-top: 8mm; }
+  #printSheet .page { margin: 0 auto; box-shadow: none; }
+  #printSheet .cut { width: 210mm; margin: 5mm auto; border-top: 0.4pt dashed #999; }
 }
+#printSheet { display: none; }
 .page .flow .blank span[contenteditable] { text-align: center; }
 .page .flow .blank.grow { text-align: left; }
 .page .flow .blank.grow span[contenteditable] { text-align: left; }
+
+/* "Valid Until" rubber stamp, bottom-left */
+.page .stamp {
+  position: absolute; left: 26mm; top: calc(var(--y) * 1mm); width: 50mm;
+  padding: 1.2mm 1.5mm; border: 0.9pt solid #1d3c8f; outline: 0.4pt solid #1d3c8f; outline-offset: 0.6mm;
+  color: #1d3c8f; text-align: center; line-height: 1.15; transform: rotate(-2deg);
+  font-family: Arial, "Liberation Sans", sans-serif; font-weight: bold;
+}
+.page .stamp .st-1 { font-size: 7pt; letter-spacing: 0.02em; }
+.page .stamp .st-2 { font-size: 6pt; font-weight: normal; }
+.page .stamp .st-3 { font-size: 7.5pt; letter-spacing: 0.15em; margin-top: 0.8mm; border-top: 0.5pt solid #1d3c8f; padding-top: 0.6mm; }
+.page .stamp .st-4 { font-size: 8.5pt; }
+.page .stamp span[contenteditable] { min-width: 20mm; }

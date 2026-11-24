@@ -155,8 +155,11 @@
       license: s.license
     };
     for (const [k, v] of Object.entries(defaults)) if (c[k] === undefined) c[k] = v;
+    if (c.validUntil === undefined) c.validUntil = addMonthsText(c.issueDate, VALID_MONTHS);
     return rec;
   }
+
+  const VALID_MONTHS = 6;
 
   function openRequest(id) {
     const rec = Store.get(id);
@@ -221,7 +224,6 @@
       `<div class="line" style="--x1:${x1};--x2:${x2};--y:${dy(ly)}"></div>` +
       `<div class="v ${al}" ${ed(k, ph)} style="--x1:${x1};--x2:${x2};--y:${dy(y)};${extra}">${esc(val(k))}</div>`).join('');
 
-    // Bottom-left (about 27-73 mm across, 121-142 mm down) stays blank for the Valid Until stamp.
     return `<div class="page">
       <img class="seal" src="seal.png" alt="">
       ${fixed}
@@ -233,6 +235,12 @@
       <div class="para" style="--x:26.4;--y:${dy(115.6)}">This medical certificate is issued upon request of the patient and for
         <span class="blank"><span ${ed('purpose', 'purpose')}>${esc(c.purpose)}</span></span>
         purpose only and not for medico-legal purposes.</div>
+      <div class="stamp" style="--y:${dy(122.5)}">
+        <div class="st-1">BATANGAS STATE UNIVERSITY</div>
+        <div class="st-2">Balayan Campus &middot; Health Services</div>
+        <div class="st-3">VALID UNTIL</div>
+        <div class="st-4"><span ${ed('validUntil', 'date')}>${esc(c.validUntil)}</span></div>
+      </div>
       <div class="t c sig-name" style="--x:145.6;--y:${dy(131.3)}"><span ${ed('signatoryName', "physician's name")}>${esc(c.signatoryName)}</span></div>
       <div class="t c sig-sub" style="--x:145.6;--y:${dy(134.4)}"><span ${ed('signatoryTitle', 'position')}>${esc(c.signatoryTitle)}</span></div>
       <div class="t c sig-sub" style="--x:145.6;--y:${dy(137.6)}">License No.: <span ${ed('license', '—')}>${esc(c.license)}</span></div>
@@ -297,6 +305,12 @@
       const k = el.dataset.k;
       const v = el.textContent.trim();
       if (PATIENT_KEYS.includes(k)) r[k] = v; else r.cert[k] = v;
+      // Validity follows the issue date (6 months)
+      if (k === 'issueDate') {
+        const vu = addMonthsText(v, VALID_MONTHS);
+        const out = $('[data-k="validUntil"]', cert);
+        if (vu && out) { r.cert.validUntil = vu; out.textContent = vu; }
+      }
       fit(el);
       Store.save(r);
       if (k === 'name') renderList();
@@ -319,6 +333,10 @@
     });
 
     // Clear leftover <br> so placeholders reappear when a field is emptied
+    cert.addEventListener('focusin', (e) => { if (PICK[e.target.dataset?.k]) showPicker(e.target); });
+    cert.addEventListener('focusout', hidePicker);
+    cert.addEventListener('input', (e) => { if (PICK[e.target.dataset?.k]) showPicker(e.target, true); });
+
     cert.addEventListener('blur', (e) => {
       if (e.target.matches?.('[contenteditable]') && !e.target.textContent.trim()) e.target.innerHTML = '';
     }, true);
@@ -340,6 +358,60 @@
       renderList(); renderDetail();
     });
   }
+
+  // Print two copies of the certificate on one legal sheet
+  const sheet = document.createElement('div');
+  sheet.id = 'printSheet';
+  window.addEventListener('beforeprint', () => {
+    const page = $('#cert .page');
+    if (!page) return;
+    const copy = () => {
+      const p = page.cloneNode(true);
+      $$('[contenteditable]', p).forEach(el => el.removeAttribute('contenteditable'));
+      return p;
+    };
+    const cut = document.createElement('div');
+    cut.className = 'cut';
+    sheet.replaceChildren(copy(), cut, copy());
+    document.body.append(sheet);
+  });
+  window.addEventListener('afterprint', () => sheet.remove());
+
+  /* ---------------- Quick-pick dropdown for Diagnosis / Remarks / Purpose ---------------- */
+  const PICK = { diagnosis: 'diagnosisOptions', remarks1: 'remarksOptions', remarks2: 'remarksOptions', purpose: 'purposeOptions' };
+  const OPTION_KEYS = ['diagnosisOptions', 'remarksOptions', 'purposeOptions'];
+  const picker = document.createElement('div');
+  picker.className = 'picker no-print';
+  picker.hidden = true;
+  document.body.append(picker);
+  let pickTarget = null;
+
+  // On focus show every option; while typing, only the matching ones
+  function showPicker(el, filter) {
+    const opts = Store.settings()[PICK[el.dataset.k]] || [];
+    const q = filter ? el.textContent.trim().toLowerCase() : '';
+    const list = opts.filter(o => !q || o.toLowerCase().includes(q) && o.toLowerCase() !== q);
+    if (!list.length) return hidePicker();
+    pickTarget = el;
+    picker.innerHTML = list.map(o => `<button type="button">${esc(o)}</button>`).join('');
+    const r = el.getBoundingClientRect();
+    picker.style.left = Math.max(4, r.left + scrollX) + 'px';
+    picker.style.top = (r.bottom + scrollY + 4) + 'px';
+    picker.hidden = false;
+  }
+  function hidePicker() { picker.hidden = true; pickTarget = null; }
+
+  // mousedown keeps focus on the field so the choice lands in it
+  picker.addEventListener('mousedown', e => e.preventDefault());
+  picker.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b || !pickTarget) return;
+    const el = pickTarget;
+    el.textContent = b.textContent;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    hidePicker();
+    el.blur();
+  });
 
   async function approve() {
     const r = Store.get(currentId);
@@ -371,7 +443,7 @@
 
   function loadSettingsForm() {
     const s = Store.settings();
-    for (const k of Object.keys(s)) if (sf[k]) sf[k].value = s[k];
+    for (const k of Object.keys(s)) if (sf[k]) sf[k].value = Array.isArray(s[k]) ? s[k].join('\n') : s[k];
     sf.newPassword.value = '';
     $('#settingsMsg').textContent = '';
   }
@@ -380,6 +452,7 @@
     e.preventDefault();
     const s = Store.settings();
     for (const k of Object.keys(s)) if (sf[k]) s[k] = sf[k].value.trim();
+    for (const k of OPTION_KEYS) s[k] = (sf[k]?.value || '').split('\n').map(x => x.trim()).filter(Boolean);
     s.nextControl = Math.max(1, parseInt(s.nextControl, 10) || 1);
     const pw = sf.newPassword.value;
     $('#settingsMsg').textContent = 'Saving…';

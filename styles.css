@@ -188,3 +188,14 @@ input[type=date]::-webkit-date-and-time-value { text-align: left; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media print { .cert-wrap { padding: 0; } .cert-wrap .page { box-shadow: none; } }
+
+/* Quick-pick dropdown under Diagnosis / Remarks / Purpose */
+.picker {
+  position: absolute; z-index: 50; min-width: 220px; max-width: min(420px, 92vw); max-height: 260px; overflow-y: auto;
+  background: var(--card, #fff); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-float); padding: 4px;
+}
+.picker button {
+  display: block; width: 100%; text-align: left; border: 0; background: none; padding: 9px 12px;
+  border-radius: 6px; font: inherit; font-size: 14px; cursor: pointer; color: inherit;
+}
+.picker button:hover { background: #f6eef0; color: var(--accent); }
