@@ -52,14 +52,11 @@
   <main id="downloadView" hidden>
     <div class="card settings">
       <h2>Download certificates</h2>
-      <p class="hint" style="margin-top:6px">All requests for the chosen day. Each certificate prints as two copies on one sheet.</p>
+      <p class="hint" style="margin-top:6px">All requests for the chosen day. Each certificate is printed twice on one sheet, one copy per half, with a cut line in the middle.</p>
       <div class="row">
         <div><label>Day</label><input type="date" id="dlDate"></div>
         <div><label>Paper</label>
-          <select id="dlPaper">
-            <option value="355.6">Legal (8.5 x 14 in)</option>
-            <option value="330.2">Folio / Long (8.5 x 13 in)</option>
-          </select>
+          <select id="dlPaper" class="paper-select"></select>
         </div>
       </div>
       <div class="toolbar" style="margin-top:14px">

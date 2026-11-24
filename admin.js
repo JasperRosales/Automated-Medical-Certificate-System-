@@ -291,6 +291,7 @@
         ${pending
           ? '<button class="btn ok" id="approveBtn">Approve &amp; print</button>'
           : '<button class="btn" id="reopenBtn">Move back to pending</button><button class="btn primary" id="printBtn">Print</button>'}
+        <select class="paper-select" title="Paper size">${paperOptions()}</select>
         <button class="btn danger" id="deleteBtn">Delete</button>
       </div>
       <p class="hint no-print">Click any highlighted text on the certificate to edit it. Changes save automatically.</p>
@@ -360,7 +361,26 @@
     });
   }
 
-  // Print two copies of the certificate on one legal sheet
+  /* ---------------- Paper: two copies per sheet, cut line in the exact middle ---------------- */
+  const PAPERS = { legal: ['Legal (8.5 x 14 in)', 355.6], folio: ['Folio / Long (8.5 x 13 in)', 330.2] };
+  const PAPER_W = 215.9;
+  let paper = PAPERS[localStorage.getItem('medcert_paper')] ? localStorage.getItem('medcert_paper') : 'legal';
+  const paperOptions = () => Object.entries(PAPERS)
+    .map(([k, [label]]) => `<option value="${k}" ${k === paper ? 'selected' : ''}>${label}</option>`).join('');
+  const pageStyle = document.createElement('style');
+  document.head.append(pageStyle);
+  function setPaper(k) {
+    paper = k;
+    localStorage.setItem('medcert_paper', k);
+    const H = PAPERS[k][1];
+    pageStyle.textContent = `@page { size: ${PAPER_W}mm ${H}mm; margin: 0; } #printSheet { --sheet-h: ${H}mm; }`;
+    $$('.paper-select').forEach(s => (s.value = k));
+  }
+  document.addEventListener('change', (e) => { if (e.target.matches('.paper-select')) setPaper(e.target.value); });
+  setPaper(paper);
+  $('#dlPaper').innerHTML = paperOptions();
+
+  // Each copy is centred in its own half of the sheet
   const sheet = document.createElement('div');
   sheet.id = 'printSheet';
   window.addEventListener('beforeprint', () => {
@@ -371,9 +391,11 @@
       $$('[contenteditable]', p).forEach(el => el.removeAttribute('contenteditable'));
       return p;
     };
-    const cut = document.createElement('div');
-    cut.className = 'cut';
-    sheet.replaceChildren(copy(), cut, copy());
+    const half = () => Object.assign(document.createElement('div'), { className: 'half' });
+    const top = half(), bottom = half();
+    top.append(copy());
+    bottom.append(copy());
+    sheet.replaceChildren(top, bottom);
     document.body.append(sheet);
   });
   window.addEventListener('afterprint', () => sheet.remove());
@@ -493,7 +515,7 @@
       msg.textContent = 'Preparing…';
       await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
       await loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
-      const W = 215.9, H = +$('#dlPaper').value, PW = 210, PH = 148, X = (W - PW) / 2, TOP = 8, GAP = 10;
+      const W = PAPER_W, H = PAPERS[paper][1], PW = 210, PH = 148, X = (W - PW) / 2, Y = (H / 2 - PH) / 2;
       const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: [W, H], orientation: 'portrait' });
       const s = Store.settings();
       for (const [i, id] of ids.entries()) {
@@ -507,12 +529,12 @@
         const canvas = await window.html2canvas(page, { scale: 3, backgroundColor: '#ffffff', logging: false });
         const img = canvas.toDataURL('image/jpeg', 0.92);
         if (i) pdf.addPage([W, H], 'portrait');
-        pdf.addImage(img, 'JPEG', X, TOP, PW, PH);
-        pdf.addImage(img, 'JPEG', X, TOP + PH + GAP, PW, PH);
+        pdf.addImage(img, 'JPEG', X, Y, PW, PH);
+        pdf.addImage(img, 'JPEG', X, H / 2 + Y, PW, PH);
         pdf.setDrawColor(160);
         pdf.setLineDashPattern([1.5, 1.5], 0);
         pdf.setLineWidth(0.15);
-        pdf.line(X, TOP + PH + GAP / 2, X + PW, TOP + PH + GAP / 2);
+        pdf.line(0, H / 2, W, H / 2);
       }
       pdf.save(`certificates-${dlDate.value}.pdf`);
       msg.textContent = `Downloaded ${ids.length} certificate${ids.length > 1 ? 's' : ''}.`;

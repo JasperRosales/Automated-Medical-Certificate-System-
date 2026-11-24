@@ -1,7 +1,7 @@
 /* Official BatStateU Balayan medical certificate (210 x 148 mm, half of A4).
  * Positions are in mm, measured from the printed form. Header is fixed.
- * Prints two copies on one legal sheet. */
-@page { size: legal portrait; margin: 0; }
+ * Prints two copies on one sheet (Legal or Folio), one per half.
+ * The @page size is set from admin.js. */
 
 .cert-wrap { overflow-x: auto; padding: 4px 0 12px; }
 .page {
@@ -79,11 +79,12 @@
 @media print {
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
   body > *:not(#printSheet) { display: none !important; }
-  #printSheet { display: block; width: 215.9mm; padding-top: 8mm; }
-  #printSheet .page { margin: 0 auto; box-shadow: none; }
-  #printSheet .cut { width: 210mm; margin: 5mm auto; border-top: 0.4pt dashed #999; }
+  #printSheet { display: block; width: 215.9mm; height: calc(var(--sheet-h) - 0.5mm); overflow: hidden; }
+  #printSheet .half { box-sizing: border-box; height: calc(var(--sheet-h) / 2); display: flex; align-items: center; justify-content: center; }
+  #printSheet .half:first-child { border-bottom: 0.4pt dashed #999; }
+  #printSheet .page { margin: 0; box-shadow: none; flex: none; }
 }
-#printSheet { display: none; }
+@media screen { #printSheet { display: none; } }
 .page .flow .blank span[contenteditable] { text-align: center; }
 .page .flow .blank.grow { text-align: left; }
 .page .flow .blank.grow span[contenteditable] { text-align: left; }

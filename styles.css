@@ -207,3 +207,4 @@ input[type=date]::-webkit-date-and-time-value { text-align: left; }
 .dl-item .name { flex: 1; font-weight: 600; }
 .dl-item input, .check input { width: auto; margin: 0; }
 .check { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 600; cursor: pointer; }
+.paper-select { width: auto; padding: 7px 10px; font-size: 13px; }
