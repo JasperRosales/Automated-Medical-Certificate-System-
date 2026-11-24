@@ -26,6 +26,7 @@
   <header class="topbar no-print">
     <h1>Medical Certificates</h1>
     <button class="tab active" data-view="requestsView">Requests</button>
+    <button class="tab" data-view="downloadView">Download</button>
     <button class="tab" data-view="settingsView">Settings</button>
     <span class="spacer"></span>
     <button class="btn" id="logoutBtn">Log out</button>
@@ -45,6 +46,31 @@
     <section id="detail">
       <div class="card empty-state">Select a request to review it.</div>
     </section>
+  </main>
+
+  <!-- Batch download -->
+  <main id="downloadView" hidden>
+    <div class="card settings">
+      <h2>Download certificates</h2>
+      <p class="hint" style="margin-top:6px">All requests for the chosen day. Each certificate prints as two copies on one sheet.</p>
+      <div class="row">
+        <div><label>Day</label><input type="date" id="dlDate"></div>
+        <div><label>Paper</label>
+          <select id="dlPaper">
+            <option value="355.6">Legal (8.5 x 14 in)</option>
+            <option value="330.2">Folio / Long (8.5 x 13 in)</option>
+          </select>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:14px">
+        <label class="check"><input type="checkbox" id="dlAll"> Select all</label>
+        <span class="spacer"></span>
+        <span class="muted" id="dlCount"></span>
+      </div>
+      <div class="dl-list" id="dlList"></div>
+      <button class="btn primary block" id="dlBtn" type="button">Download PDF</button>
+      <div class="muted" id="dlMsg" style="margin-top:10px;text-align:center"></div>
+    </div>
   </main>
 
   <!-- Settings -->

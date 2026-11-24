@@ -104,8 +104,9 @@
   $$('.tab').forEach(t => t.addEventListener('click', () => {
     $$('.tab').forEach(x => x.classList.toggle('active', x === t));
     $('#requestsView').hidden = t.dataset.view !== 'requestsView';
-    $('#settingsView').hidden = t.dataset.view !== 'settingsView';
+    for (const v of ['requestsView', 'downloadView', 'settingsView']) $('#' + v).hidden = t.dataset.view !== v;
     if (t.dataset.view === 'settingsView') loadSettingsForm();
+    else if (t.dataset.view === 'downloadView') renderDownload();
     else { renderList(); renderDetail(); }
   }));
 
@@ -437,6 +438,91 @@
     renderDetail();
     setTimeout(() => window.print(), 150);
   }
+
+  /* ---------------- Batch download (PDF) ---------------- */
+  const dlDate = $('#dlDate');
+  dlDate.value = todayISO();
+  dlDate.addEventListener('change', renderDownload);
+
+  function dayRequests() {
+    return Store.all().filter(r => r.date === dlDate.value).sort((a, b) => a.createdAt - b.createdAt);
+  }
+
+  function renderDownload() {
+    const list = dayRequests();
+    $('#dlList').innerHTML = list.length ? list.map(r => `
+      <label class="dl-item">
+        <input type="checkbox" value="${r.id}" ${r.status === 'approved' ? 'checked' : ''}>
+        <span class="name">${esc(r.name)}</span>
+        <span class="muted">${esc(r.cert?.controlNo || r.ref)}</span>
+        <span class="badge ${r.status}">${r.status}</span>
+      </label>`).join('')
+      : '<div class="empty-state" style="padding:24px 10px">No requests on this day.</div>';
+    $('#dlMsg').textContent = '';
+    updateDlCount();
+  }
+
+  function updateDlCount() {
+    const boxes = $$('#dlList input');
+    const n = boxes.filter(b => b.checked).length;
+    $('#dlCount').textContent = `${n} of ${boxes.length} selected`;
+    $('#dlAll').checked = boxes.length > 0 && n === boxes.length;
+    $('#dlBtn').disabled = n === 0;
+  }
+  $('#dlList').addEventListener('change', updateDlCount);
+  $('#dlAll').addEventListener('change', (e) => {
+    $$('#dlList input').forEach(b => (b.checked = e.target.checked));
+    updateDlCount();
+  });
+
+  const loadScript = src => new Promise((ok, fail) => {
+    if ([...document.scripts].some(s => s.src === src)) return ok();
+    const s = Object.assign(document.createElement('script'), { src, onload: ok, onerror: () => fail(new Error('Could not load ' + src)) });
+    document.head.append(s);
+  });
+
+  $('#dlBtn').addEventListener('click', async () => {
+    const ids = $$('#dlList input').filter(b => b.checked).map(b => b.value);
+    if (!ids.length) return;
+    const btn = $('#dlBtn'), msg = $('#dlMsg');
+    btn.disabled = true;
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:-10000px;top:0;';
+    document.body.append(box);
+    try {
+      msg.textContent = 'Preparing…';
+      await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+      const W = 215.9, H = +$('#dlPaper').value, PW = 210, PH = 148, X = (W - PW) / 2, TOP = 8, GAP = 10;
+      const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: [W, H], orientation: 'portrait' });
+      const s = Store.settings();
+      for (const [i, id] of ids.entries()) {
+        msg.textContent = `Rendering ${i + 1} of ${ids.length}…`;
+        const rec = ensureCert(structuredClone(Store.get(id)));
+        box.innerHTML = certificateHTML(rec, s);
+        const page = $('.page', box);
+        $$('[data-k]', page).forEach(fit);
+        $$('[contenteditable]', page).forEach(el => el.removeAttribute('contenteditable'));
+        await Promise.all($$('img', page).map(img => img.decode().catch(() => {})));
+        const canvas = await window.html2canvas(page, { scale: 3, backgroundColor: '#ffffff', logging: false });
+        const img = canvas.toDataURL('image/jpeg', 0.92);
+        if (i) pdf.addPage([W, H], 'portrait');
+        pdf.addImage(img, 'JPEG', X, TOP, PW, PH);
+        pdf.addImage(img, 'JPEG', X, TOP + PH + GAP, PW, PH);
+        pdf.setDrawColor(160);
+        pdf.setLineDashPattern([1.5, 1.5], 0);
+        pdf.setLineWidth(0.15);
+        pdf.line(X, TOP + PH + GAP / 2, X + PW, TOP + PH + GAP / 2);
+      }
+      pdf.save(`certificates-${dlDate.value}.pdf`);
+      msg.textContent = `Downloaded ${ids.length} certificate${ids.length > 1 ? 's' : ''}.`;
+    } catch (e) {
+      msg.textContent = 'Download failed: ' + e.message;
+    } finally {
+      box.remove();
+      btn.disabled = false;
+    }
+  });
 
   /* ---------------- Settings ---------------- */
   const sf = $('#settingsForm');
