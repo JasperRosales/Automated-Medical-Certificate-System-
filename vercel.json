@@ -1,3 +1,7 @@
 {
-  "regions": ["sin1"]
+  "regions": ["sin1"],
+  "redirects": [
+    { "source": "/", "destination": "/medical-cert.html", "permanent": false },
+    { "source": "/index.html", "destination": "/medical-cert.html", "permanent": false }
+  ]
 }
