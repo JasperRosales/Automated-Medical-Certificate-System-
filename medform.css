@@ -14,6 +14,7 @@
 .mf-page .cb.on::after { content: "\2713"; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-52%); text-align: center; font: bold 10pt Arial, sans-serif; line-height: 1; }
 .mf-page .up { text-transform: uppercase; }
 .mf-page .ctr { text-align: center; }
+.mf-page .cert .mfv.sm { font-size: 10pt; }
 .mf-page .mfv { font-size: 11pt; overflow: hidden; white-space: nowrap; }
 
 .mf-page table.g { width: 196mm; border-collapse: collapse; table-layout: fixed; }
@@ -25,8 +26,9 @@
 .mf-page .privacy { height: 84.4mm; border: 1px solid #000; border-top: 0; padding: .6mm 1.4mm 0 1.4mm; font-style: italic; font-size: 10.05pt; line-height: 4.24mm; text-align: justify; }
 .mf-page .privacy p { margin: 0; }
 .mf-page .p1rows td { font-size: 10.5pt; }
-.mf-page .p1rows .r-ctrl td { height: 3.9mm; text-align: left; font-size: 9.5pt; padding-left: 136mm; line-height: 1; white-space: nowrap; }
-.mf-page .p1rows .r-ctrl .ctrl { color: #8b1a2b; font-weight: bold; }
+.mf-page .p1rows .r-ctrl td { height: 5.2mm; text-align: left; font-size: 9.5pt; padding-left: 136mm; line-height: 1; white-space: nowrap; }
+.mf-page .p1rows .r-ctrl .ctrl { color: #8b1a2b; font-weight: bold; margin-left: 2.5mm; }
+.mf-page .p1rows td.pos { font-size: 9.6pt; line-height: 1.05; }
 .mf-page .p1rows .r-it td { text-align: center; font-style: italic; font-size: 10pt; }
 .mf-page .p1rows .r-pi td { height: 5.3mm; }
 .mf-page .p1rows .r-ad td { height: 7.2mm; }

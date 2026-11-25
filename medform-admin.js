@@ -69,7 +69,7 @@ const MedForm = (function () {
     <tr class="r-pi"><td>MIDDLE NAME</td>${td('middle', 'middle name')}<td>AGE</td>${td('age', 'age')}</tr>
     <tr class="r-pi"><td>SEX</td>${td('sex', 'sex')}<td>CIVIL STATUS</td>${td('civilStatus', 'status')}</tr>
     <tr class="r-pi"><td>CELLPHONE NO.</td>${td('cellphone', '')}<td>TEL. NO.</td>${td('tel', '')}</tr>
-    <tr class="r-ad"><td>ADDRESS</td>${td('address', 'address')}<td style="line-height:1.05">POSITION/PROGRAM/<br>CAMPUS</td>${td('position', '')}</tr>
+    <tr class="r-ad"><td>ADDRESS</td>${td('address', 'address')}<td class="pos">POSITION/PROGRAM/<br>CAMPUS</td>${td('position', '')}</tr>
     <tr class="r-it"><td colspan="4" style="height:3.9mm;line-height:1">(To be filled out by the Health Services Office Staff only)</td></tr>
   </table>
   <table class="g hist" style="border-top:0">
@@ -81,7 +81,7 @@ const MedForm = (function () {
     <tr><td colspan="6" class="st" style="height:4.4mm">PHYSICAL EXAMINATION</td></tr>
     <tr><th>REVIEW OF SYSTEM</th><th>NORMAL</th><th>FINDINGS</th><th>REVIEW OF SYSTEM</th><th>NORMAL</th><th>FINDINGS</th></tr>
     ${pe}
-    <tr><td colspan="6" class="st" style="height:3.9mm;line-height:1">DIAGNOSTIC EXAMINATION</td></tr>
+    <tr><td colspan="6" class="st" style="height:4.8mm;line-height:1">DIAGNOSTIC EXAMINATION</td></tr>
   </table>
   <div class="diag">
     <div class="div"></div>
@@ -125,7 +125,7 @@ const MedForm = (function () {
     <div class="a" style="left:0.6mm;top:17.7mm">Institution:</div><div class="ln" style="left:27.3mm;width:38.7mm;top:22.6mm"></div>${at('institution', 27.3, 18.8, 38.7)}
     <div class="a" style="left:1.7mm;top:24.8mm">Name:</div><div class="ln" style="left:14.7mm;width:51.3mm;top:28mm"></div>
     <div class="a mfv up" data-derive="fullname" style="left:15.4mm;top:24.2mm;width:50.4mm">${esc(n.fullname)}</div>
-    <div class="ln" style="left:22.6mm;width:32mm;top:38.2mm"></div><div class="a" style="left:1.9mm;top:39.3mm">Weight (kg):</div>${at('weight', 22.6, 34.4, 32)}
+    <div class="a" style="left:1.9mm;top:39.3mm">Weight (kg):</div><div class="ln" style="left:22.6mm;width:32mm;top:42.2mm"></div>${at('weight', 22.6, 38.5, 32)}
     <div class="a" style="left:1.9mm;top:48.6mm">Height (cm):</div><div class="ln" style="left:22.6mm;width:32mm;top:51.5mm"></div>${at('height', 22.6, 47.7, 32)}
     <div class="a" style="left:1.9mm;top:53.8mm">Civil Status:</div><div class="ln" style="left:22.6mm;width:32mm;top:57mm"></div>${at('civilStatus', 22.6, 53.2, 32, '', 'up')}
     <div class="a" style="left:1.9mm;top:59mm">Date of Examination:</div><div class="ln" style="left:34.4mm;width:41.1mm;top:62.7mm"></div>${at('examDate', 34.4, 58.9, 41.1)}
@@ -133,7 +133,7 @@ const MedForm = (function () {
     <div class="a mfv up" data-derive="signame" style="left:14.2mm;width:67.7mm;top:106.2mm;text-align:center">${esc(n.signame)}</div>
     <div class="ln" style="left:14.2mm;width:67.7mm;top:110.4mm"></div>
     <div class="a" style="left:0;width:96.9mm;top:111.2mm;text-align:center">Signature over Printed Name of Employee/Student</div>
-    <div class="a" style="left:28.5mm;top:115.5mm">Date:</div>${at('sigDate', 37, 115.4, 40)}
+    <div class="a" style="left:28.5mm;top:115.5mm">Date:</div>${at('sigDate', 39, 115.3, 40, '', 'sm')}
 
     <div class="a" style="left:99mm;top:6.5mm;font-style:italic;font-size:9.6pt">To be filled out by the Physician only</div>
     <div class="a" style="left:99mm;top:10.3mm;width:96mm;white-space:normal;text-align:justify;line-height:4mm">I certify that I have examined and found the applicant to be physically fit/ unfit for employment.</div>
@@ -145,15 +145,15 @@ const MedForm = (function () {
     <div class="cls-d" style="top:30.1mm">Physically underdeveloped or with correctible defects but otherwise fit to work</div>
     <div class="a" style="left:106.4mm;top:43.6mm;font-weight:bold">REMARKS:</div>${at('mfRemarks', 127, 43.5, 67, 'remarks')}
     <div class="a cls-b" style="left:102.1mm;top:48.4mm">${cb('cls', 'C')}CLASS C</div>
-    <div class="cls-d" style="top:48.2mm">Employable but owing to certain impairments or conditions, requires special placement or limited duty in a specified or selected assignment requiring follow up treatment/ periodic evaluation</div>
-    <div class="a cls-b" style="left:103.2mm;top:73.1mm">${cb('cls', 'D')}CLASS D</div>
-    <div class="cls-d" style="top:72.9mm;white-space:nowrap"><span style="text-decoration:underline">Unfit or unsafe for any type of employment</span></div>
+    <div class="cls-d" style="top:48.2mm;line-height:4.6mm">Employable but owing to certain impairments or conditions, requires special placement or limited duty in a specified or selected assignment requiring follow up treatment/ periodic evaluation</div>
+    <div class="a cls-b" style="left:103.2mm;top:72.2mm">${cb('cls', 'D')}CLASS D</div>
+    <div class="cls-d" style="top:72mm;white-space:nowrap"><span style="text-decoration:underline">Unfit or unsafe for any type of employment</span></div>
     <div class="hl2" style="top:77.6mm"></div>
     ${at('physician', 108, 98.4, 70, "physician's name", 'up ctr')}
     <div class="ln" style="left:108mm;width:70mm;top:102.8mm"></div>
     <div class="a" style="left:96.9mm;width:99mm;top:103.5mm;text-align:center;padding-right:3mm">Signature over Printed Name of Attending Physician</div>
-    <div class="a" style="left:124.6mm;top:107.9mm">License No.:</div><div class="ln" style="left:143.4mm;width:19.9mm;top:111.1mm"></div>${at('license', 143.4, 107.4, 30)}
-    <div class="a" style="left:124.6mm;top:112mm">Date:</div>${at('physDate', 134, 111.9, 40)}
+    <div class="a" style="left:124.6mm;top:107.9mm">License No.:</div><div class="ln" style="left:145mm;width:30mm;top:111.1mm"></div>${at('license', 145, 107.4, 30)}
+    <div class="a" style="left:124.6mm;top:112.6mm">Date:</div>${at('physDate', 135, 112.5, 40)}
   </div>
   <div class="note"><span>Note:</span> This certificate does not cover conditions or diseases that will require procedure and examination for their detection and those which are asymptomatic at the time of examination. Valid only for six (6) months from the date of examination.</div>
 </div></section>
