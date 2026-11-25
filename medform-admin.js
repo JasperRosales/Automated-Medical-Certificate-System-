@@ -125,10 +125,10 @@ const MedForm = (function () {
     <div class="a" style="left:0.6mm;top:17.7mm">Institution:</div><div class="ln" style="left:27.3mm;width:38.7mm;top:22.6mm"></div>${at('institution', 27.3, 18.8, 38.7)}
     <div class="a" style="left:1.7mm;top:24.8mm">Name:</div><div class="ln" style="left:14.7mm;width:51.3mm;top:28mm"></div>
     <div class="a mfv up" data-derive="fullname" style="left:15.4mm;top:24.2mm;width:50.4mm">${esc(n.fullname)}</div>
-    <div class="a" style="left:1.9mm;top:39.3mm">Weight (kg):</div><div class="ln" style="left:22.6mm;width:32mm;top:42.2mm"></div>${at('weight', 22.6, 38.5, 32)}
-    <div class="a" style="left:1.9mm;top:48.6mm">Height (cm):</div><div class="ln" style="left:22.6mm;width:32mm;top:51.5mm"></div>${at('height', 22.6, 47.7, 32)}
-    <div class="a" style="left:1.9mm;top:53.8mm">Civil Status:</div><div class="ln" style="left:22.6mm;width:32mm;top:57mm"></div>${at('civilStatus', 22.6, 53.2, 32, '', 'up')}
-    <div class="a" style="left:1.9mm;top:59mm">Date of Examination:</div><div class="ln" style="left:34.4mm;width:41.1mm;top:62.7mm"></div>${at('examDate', 34.4, 58.9, 41.1)}
+    <div class="a" style="left:1.9mm;top:30.4mm">Weight (kg):</div><div class="ln" style="left:22.6mm;width:32mm;top:33.5mm"></div>${at('weight', 22.6, 29.8, 32)}
+    <div class="a" style="left:1.9mm;top:35.8mm">Height (cm):</div><div class="ln" style="left:22.6mm;width:32mm;top:38.9mm"></div>${at('height', 22.6, 35.2, 32)}
+    <div class="a" style="left:1.9mm;top:41.2mm">Civil Status:</div><div class="ln" style="left:22.6mm;width:32mm;top:44.3mm"></div>${at('civilStatus', 22.6, 40.6, 32, '', 'up')}
+    <div class="a" style="left:1.9mm;top:46.6mm">Date of Examination:</div><div class="ln" style="left:34.4mm;width:41.1mm;top:49.7mm"></div>${at('examDate', 34.4, 46.0, 41.1)}
     <div class="auth">I hereby authorize BATANGAS STATE UNIVERSITY and its officially designated medical examiner and examining physician/s to furnish information that the company may need pertaining to my health status and other pertinent medical findings and do hereby release them from any and all legal responsibilities by so doing. I also further certify that the medical history contained herein is true to the best of my knowledge and any false statement will disqualify me from any employment benefits and claims.</div>
     <div class="a mfv up" data-derive="signame" style="left:14.2mm;width:67.7mm;top:104.4mm;text-align:center">${esc(n.signame)}</div>
     <div class="ln" style="left:14.2mm;width:67.7mm;top:108.6mm"></div>
@@ -146,9 +146,9 @@ const MedForm = (function () {
     <div class="a" style="left:106.4mm;top:43.6mm;font-weight:bold">REMARKS:</div>${at('mfRemarks', 127, 43.5, 67, 'remarks')}
     <div class="a cls-b" style="left:102.1mm;top:48.4mm">${cb('cls', 'C')}CLASS C</div>
     <div class="cls-d" style="top:48.2mm;line-height:4.6mm">Employable but owing to certain impairments or conditions, requires special placement or limited duty in a specified or selected assignment requiring follow up treatment/ periodic evaluation</div>
-    <div class="a cls-b" style="left:103.2mm;top:73.6mm">${cb('cls', 'D')}CLASS D</div>
-    <div class="cls-d" style="top:73.4mm;line-height:4.6mm"><span style="text-decoration:underline">Unfit or unsafe for any type of</span><br><span style="text-decoration:underline">employment</span></div>
-    <div class="hl2" style="top:83.6mm"></div>
+    <div class="a cls-b" style="left:103.2mm;top:75.2mm">${cb('cls', 'D')}CLASS D</div>
+    <div class="cls-d" style="top:75mm;line-height:4.6mm"><span style="text-decoration:underline">Unfit or unsafe for any type of</span><br><span style="text-decoration:underline">employment</span></div>
+    <div class="hl2" style="top:85mm"></div>
     ${at('physician', 108, 98.4, 70, "physician's name", 'up ctr')}
     <div class="ln" style="left:108mm;width:70mm;top:102.8mm"></div>
     <div class="a" style="left:96.9mm;width:99mm;top:103.5mm;text-align:center;padding-right:3mm">Signature over Printed Name of Attending Physician</div>
