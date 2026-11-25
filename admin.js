@@ -239,7 +239,7 @@
         purpose only and not for medico-legal purposes.</div>
       <div class="stamp" style="--y:${dy(122.5)}">
         <div class="st-1">BATANGAS STATE UNIVERSITY</div>
-        <div class="st-2">Balayan Campus &middot; Health Services</div>
+        <div class="st-2">Balayan Campus</div>
         <div class="st-3">VALID UNTIL</div>
         <div class="st-4"><span ${ed('validUntil', 'date')}>${esc(c.validUntil)}</span></div>
       </div>

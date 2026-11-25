@@ -96,7 +96,7 @@
 .page .stamp {
   position: absolute; left: 26mm; top: calc(var(--y) * 1mm); width: 50mm;
   padding: 1.2mm 1.5mm; border: 0.9pt solid #c8102e; outline: 0.4pt solid #c8102e; outline-offset: 0.6mm;
-  color: #c8102e; text-align: center; line-height: 1.15; transform: rotate(-2deg);
+  color: #c8102e; text-align: center; line-height: 1.15;
   font-family: Arial, "Liberation Sans", sans-serif; font-weight: bold;
 }
 .page .stamp .st-1 { font-size: 7pt; letter-spacing: 0.02em; }
