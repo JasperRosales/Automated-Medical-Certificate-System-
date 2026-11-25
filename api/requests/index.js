@@ -23,7 +23,7 @@ export default handler({
         // Pre-employment/OJT medical form: name parts and extra details go in the cert json
         const str = k => (typeof body[k] === 'string' ? body[k].trim().replace(/\s+/g, ' ') : '');
         extra = cleanCert(Object.fromEntries(
-          ['last', 'first', 'middle', 'birthday', 'cellphone', 'tel', 'position', 'institution'].map(k => [k, str(k)])));
+          ['last', 'first', 'middle', 'birthday', 'cellphone', 'tel', 'position', 'institution', 'weight', 'height'].map(k => [k, str(k)])));
         if (!extra.last || !extra.first || !extra.birthday) return res.status(400).json({ error: 'Please complete all required fields.' });
         body.name = `${extra.last}, ${extra.first}${extra.middle ? ' ' + extra.middle : ''}`;
       }

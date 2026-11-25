@@ -19,7 +19,7 @@
     const data = Object.fromEntries(new FormData(form).entries());
     for (const k of Object.keys(data)) data[k] = data[k].trim();
 
-    const missing = ['last', 'first', 'birthday', 'age', 'sex', 'civilStatus', 'address', 'date'].filter(k => !data[k]);
+    const missing = ['last', 'first', 'birthday', 'age', 'sex', 'civilStatus', 'weight', 'height', 'address', 'date'].filter(k => !data[k]);
     if (missing.length) {
       err.textContent = 'Please complete all required fields.';
       form[missing[0]].focus();
@@ -31,6 +31,10 @@
       form.age.focus();
       return;
     }
+
+    const w = Number(data.weight), h = Number(data.height);
+    if (!(w > 0 && w <= 400)) { err.textContent = 'Please enter a valid weight in kg.'; form.weight.focus(); return; }
+    if (!(h >= 30 && h <= 260)) { err.textContent = 'Please enter a valid height in cm.'; form.height.focus(); return; }
 
     const btn = form.querySelector('button[type=submit]');
     btn.disabled = true;

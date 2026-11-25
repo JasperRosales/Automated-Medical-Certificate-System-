@@ -9,7 +9,8 @@ const MedForm = (function () {
 
   function defaults(rec, s) {
     const c = rec.cert;
-    const d = { controlNo: '', formDate: fmtDate(rec.date), physician: s.physician || '', license: s.license || '' };
+    const today = fmtDate(todayISO());
+    const d = { controlNo: '', formDate: fmtDate(rec.date), examDate: today, sigDate: today, physDate: today, physician: s.physician || '', license: s.license || '' };
     for (const [k, v] of Object.entries(d)) if (c[k] === undefined) c[k] = v;
     return rec;
   }
@@ -135,7 +136,7 @@ const MedForm = (function () {
     <div class="a" style="left:28.5mm;top:115.5mm">Date:</div>${at('sigDate', 37, 115.4, 40)}
 
     <div class="a" style="left:99mm;top:6.5mm;font-style:italic;font-size:9.6pt">To be filled out by the Physician only</div>
-    <div class="a" style="left:99mm;top:10.5mm;width:96mm;white-space:normal;text-align:justify;line-height:4.3mm">I certify that I have examined and found the applicant to be physically fit/ unfit for employment.</div>
+    <div class="a" style="left:99mm;top:10.3mm;width:96mm;white-space:normal;text-align:justify;line-height:4mm">I certify that I have examined and found the applicant to be physically fit/ unfit for employment.</div>
     <div class="hl2" style="top:18.8mm"></div>
     <div class="a" style="left:99mm;top:19.7mm">CLASSIFICATION:</div>
     <div class="a cls-b" style="left:102.1mm;top:25.1mm">${cb('cls', 'A')}CLASS A</div>
@@ -148,7 +149,7 @@ const MedForm = (function () {
     <div class="a cls-b" style="left:103.2mm;top:73.1mm">${cb('cls', 'D')}CLASS D</div>
     <div class="cls-d" style="top:72.9mm;white-space:nowrap"><span style="text-decoration:underline">Unfit or unsafe for any type of employment</span></div>
     <div class="hl2" style="top:77.6mm"></div>
-    ${at('physician', 108, 98.6, 70, "physician's name", 'up ctr')}
+    ${at('physician', 108, 98.4, 70, "physician's name", 'up ctr')}
     <div class="ln" style="left:108mm;width:70mm;top:102.8mm"></div>
     <div class="a" style="left:96.9mm;width:99mm;top:103.5mm;text-align:center;padding-right:3mm">Signature over Printed Name of Attending Physician</div>
     <div class="a" style="left:124.6mm;top:107.9mm">License No.:</div><div class="ln" style="left:143.4mm;width:19.9mm;top:111.1mm"></div>${at('license', 143.4, 107.4, 30)}
