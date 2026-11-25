@@ -3,6 +3,38 @@
   const err = document.getElementById('formError');
   form.date.value = todayISO();
 
+  // 2x2 picture: downscaled to a small JPEG before sending
+  let photo = '';
+  const thumb = document.getElementById('photoThumb');
+  const photoIn = document.getElementById('photo');
+  const photoClear = document.getElementById('photoClear');
+  function showPhoto(url) {
+    photo = url;
+    thumb.style.backgroundImage = url ? `url(${url})` : '';
+    thumb.textContent = url ? '' : 'No photo';
+    photoClear.hidden = !url;
+    if (!url) photoIn.value = '';
+  }
+  photoIn.addEventListener('change', () => {
+    const file = photoIn.files[0];
+    if (!file) return showPhoto('');
+    if (!/^image\//.test(file.type)) { err.textContent = 'Please choose an image file.'; return showPhoto(''); }
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 360 / Math.max(img.width, img.height));
+      const cv = Object.assign(document.createElement('canvas'), { width: Math.round(img.width * s), height: Math.round(img.height * s) });
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(img.src);
+      err.textContent = '';
+      showPhoto(cv.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = () => { err.textContent = 'Could not read that image.'; showPhoto(''); };
+    img.src = URL.createObjectURL(file);
+  });
+  photoClear.addEventListener('click', () => showPhoto(''));
+
   // Fill in age from the birthday
   form.birthday.addEventListener('change', () => {
     const [y, m, d] = form.birthday.value.split('-').map(Number);
@@ -40,7 +72,7 @@
     btn.disabled = true;
     let ref;
     try {
-      ({ ref } = await api('requests', { method: 'POST', body: { ...data, age: String(age), birthday: fmtDate(data.birthday), type: 'medform' } }));
+      ({ ref } = await api('requests', { method: 'POST', body: { ...data, age: String(age), birthday: fmtDate(data.birthday), photo, type: 'medform' } }));
     } catch (ex) {
       err.textContent = ex.message;
       return;
@@ -54,6 +86,7 @@
 
   document.getElementById('anotherBtn').addEventListener('click', () => {
     form.reset();
+    showPhoto('');
     form.date.value = todayISO();
     document.getElementById('successCard').hidden = true;
     document.getElementById('formCard').hidden = false;

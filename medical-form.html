@@ -63,6 +63,16 @@
       <label for="institution">School / Company / Institution <span class="muted">(optional)</span></label>
       <input id="institution" name="institution" maxlength="80">
 
+      <label for="photo">2×2 picture <span class="muted">(optional)</span></label>
+      <div class="photo-pick">
+        <div class="photo-thumb" id="photoThumb">No photo</div>
+        <div>
+          <input id="photo" type="file" accept="image/*">
+          <button class="btn" type="button" id="photoClear" hidden>Remove photo</button>
+          <p class="hint" style="margin:6px 0 0">Shown on your form. Kept for 1 day only.</p>
+        </div>
+      </div>
+
       <label for="date">Date</label>
       <input id="date" name="date" type="date" required>
 

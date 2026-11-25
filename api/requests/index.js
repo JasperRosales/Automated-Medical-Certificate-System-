@@ -24,6 +24,9 @@ export default handler({
         const str = k => (typeof body[k] === 'string' ? body[k].trim().replace(/\s+/g, ' ') : '');
         extra = cleanCert(Object.fromEntries(
           ['last', 'first', 'middle', 'birthday', 'cellphone', 'tel', 'position', 'institution', 'weight', 'height'].map(k => [k, str(k)])));
+        // Optional 2x2 picture (kept one day, see expirePhotos)
+        const photo = cleanCert({ photo: body.photo }).photo;
+        if (photo) Object.assign(extra, { photo, photoAt: String(Date.now()) });
         if (!extra.last || !extra.first || !extra.birthday) return res.status(400).json({ error: 'Please complete all required fields.' });
         body.name = `${extra.last}, ${extra.first}${extra.middle ? ' ' + extra.middle : ''}`;
       }
