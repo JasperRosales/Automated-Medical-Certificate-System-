@@ -46,3 +46,27 @@ function addMonthsText(text, months) {
   if (r.getDate() !== d.getDate()) r.setDate(0);
   return r.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
+
+// In-page modal used instead of window.alert / window.confirm. Resolves true on OK, false on Cancel/Esc.
+function modal({ title = '', message = '', ok = 'OK', cancel = '', danger = false } = {}) {
+  return new Promise((resolve) => {
+    const d = document.createElement('dialog');
+    d.className = 'modal';
+    d.innerHTML = `${title ? `<h3>${esc(title)}</h3>` : ''}<p>${esc(message)}</p>
+      <div class="modal-actions">${cancel ? `<button type="button" class="btn" data-v="0">${esc(cancel)}</button>` : ''}
+      <button type="button" class="btn ${danger ? 'danger-fill' : 'primary'}" data-v="1">${esc(ok)}</button></div>`;
+    const done = (v) => { d.close(); d.remove(); resolve(v); };
+    d.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-v]');
+      if (b) done(b.dataset.v === '1');
+      else if (e.target === d && cancel) done(false); // click on the backdrop
+    });
+    d.addEventListener('cancel', (e) => { e.preventDefault(); done(!cancel); });
+    document.body.append(d);
+    d.showModal();
+    d.querySelector('[data-v="1"]').focus();
+  });
+}
+const showAlert = (message, title = '') => modal({ title, message });
+const showConfirm = (message, { title = 'Are you sure?', ok = 'Continue', danger = false } = {}) =>
+  modal({ title, message, ok, cancel: 'Cancel', danger });

@@ -51,8 +51,8 @@
   async function run(fn) {
     try { return await fn(); }
     catch (e) {
-      if (e.status === 401) { alert('Your session has ended. Please sign in again.'); location.reload(); }
-      else alert(e.message);
+      if (e.status === 401) showAlert('Your session has ended. Please sign in again.', 'Signed out').then(() => location.reload());
+      else showAlert(e.message, 'Something went wrong');
       throw e;
     }
   }
@@ -348,7 +348,7 @@
             photo.querySelector('img')?.remove();
             photo.prepend(Object.assign(document.createElement('img'), { src: url, alt: '' }));
             Store.save(r);
-          } catch (ex) { alert(ex.message); }
+          } catch (ex) { showAlert(ex.message, 'Photo not added'); }
         };
         input.click();
       });
@@ -414,7 +414,8 @@
     });
     $('#deleteBtn').addEventListener('click', async () => {
       const r = Store.get(currentId);
-      if (!confirm(`Delete request ${r.ref} for ${r.name}? This cannot be undone.`)) return;
+      if (!(await showConfirm(`Delete request ${r.ref} for ${r.name}? This cannot be undone.`,
+        { title: 'Delete request?', ok: 'Delete', danger: true }))) return;
       await run(() => api(`requests/${r.id}`, { method: 'DELETE' }));
       Store.list = Store.list.filter(x => x.id !== r.id);
       currentId = null;
@@ -519,7 +520,7 @@
       const el = $(`[data-k="${btn.dataset.pick}"]`, btn.closest('.page'));
       if (pickTarget === el && !picker.hidden) return hidePicker();
       showPicker(el, false);
-      if (picker.hidden) alert('No options yet. Add them in Settings → Quick picks.');
+      if (picker.hidden) showAlert('No options yet. Add them in Settings → Quick picks.', 'No quick picks');
       return;
     }
     if (!picker.hidden && !picker.contains(e.target) && e.target !== pickTarget) hidePicker();
@@ -527,7 +528,7 @@
 
   async function approve() {
     const r = Store.get(currentId);
-    if (!isForm(r) && !r.cert.diagnosis && !confirm('Diagnosis is empty. Approve anyway?')) return;
+    if (!isForm(r) && !r.cert.diagnosis && !(await showConfirm('Diagnosis is empty. Approve anyway?', { title: 'No diagnosis', ok: 'Approve anyway' }))) return;
 
     $('#approveBtn').disabled = true;
     try {
@@ -680,7 +681,8 @@
     try {
       const data = JSON.parse(await file.text());
       if (!Array.isArray(data.requests)) throw new Error('bad file');
-      if (!confirm(`Replace current data with ${data.requests.length} requests from this backup?`)) return;
+      if (!(await showConfirm(`Replace current data with ${data.requests.length} requests from this backup?`,
+        { title: 'Import backup?', ok: 'Replace data', danger: true }))) return;
       await run(() => api('requests', { method: 'PUT', body: { requests: data.requests } }));
       if (data.settings) {
         const { adminPassword, ...rest } = data.settings;
@@ -691,7 +693,7 @@
       loadSettingsForm();
       $('#settingsMsg').textContent = 'Backup imported.';
     } catch (ex) {
-      if (!ex.status) alert('That file is not a valid backup.');
+      if (!ex.status) showAlert('That file is not a valid backup.', 'Import failed');
     } finally {
       e.target.value = '';
     }

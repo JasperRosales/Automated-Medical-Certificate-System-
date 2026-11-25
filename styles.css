@@ -94,6 +94,20 @@ input[type=date]::-webkit-date-and-time-value { text-align: left; }
 .btn.primary:active, .btn.ok:active { box-shadow: 0 0 0 var(--accent-edge); }
 .btn.primary:focus-visible, .btn.ok:focus-visible { box-shadow: var(--edge) var(--accent-edge), var(--ring); }
 .btn.danger { color: var(--danger); }
+.btn.danger-fill { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn.danger-fill:hover { background: #9a1d14; }
+
+/* Modal (replaces browser alert/confirm) */
+.modal {
+  width: min(420px, calc(100vw - 32px)); padding: 22px 22px 18px; border: 1px solid var(--border);
+  border-top: 4px solid var(--accent); border-radius: var(--radius); background: var(--card); color: inherit;
+  box-shadow: var(--shadow-float);
+}
+.modal::backdrop { background: rgba(34, 28, 26, .45); }
+.modal h3 { margin: 0 0 8px; font-size: 17px; }
+.modal p { margin: 0; line-height: 1.5; white-space: pre-line; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+@media print { .modal { display: none !important; } }
 .btn.block { width: 100%; padding: 13px; margin-top: 24px; font-size: 15px; }
 
 .badge {
@@ -170,6 +184,7 @@ input[type=date]::-webkit-date-and-time-value { text-align: left; }
   border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer;
 }
 .filters.types { margin-bottom: 0; }
+.filters.types button { flex: 1 1 auto; padding: 7px 5px; }
 .badge.type { color: var(--accent); background: var(--accent-soft); border-color: #ecd3d7; margin-left: 6px; }
 .filters button.active { background: var(--card); color: var(--accent); border-color: var(--border); box-shadow: 0 2px 0 var(--border), 0 3px 8px -3px rgba(34, 28, 26, .2); }
 
