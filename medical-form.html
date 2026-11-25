@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4f1ee">
+<title>Request a Medical Form</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="client">
+
+  <section class="card" id="formCard">
+    <div class="org">BatStateU Balayan · Health Services</div>
+    <h1>Pre-Employment/OJT Medical Form</h1>
+    <p class="hint">Fill in your details and submit. The clinic staff will complete your medical examination form.
+      Need a medical certificate instead? <a href="index.html">Request one here</a>.</p>
+
+    <form id="requestForm" novalidate>
+      <label for="last">Last name</label>
+      <input id="last" name="last" autocomplete="family-name" required>
+      <div class="row">
+        <div><label for="first">First name</label><input id="first" name="first" autocomplete="given-name" required></div>
+        <div><label for="middle">Middle name <span class="muted">(optional)</span></label><input id="middle" name="middle" autocomplete="additional-name"></div>
+      </div>
+
+      <div class="row">
+        <div><label for="birthday">Birthday</label><input id="birthday" name="birthday" type="date" required></div>
+        <div><label for="age">Age</label><input id="age" name="age" type="number" min="1" max="130" required></div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="sex">Sex</label>
+          <select id="sex" name="sex" required>
+            <option value="">Select…</option><option>Female</option><option>Male</option>
+          </select>
+        </div>
+        <div>
+          <label for="civilStatus">Civil status</label>
+          <select id="civilStatus" name="civilStatus" required>
+            <option value="">Select…</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div><label for="cellphone">Cellphone no. <span class="muted">(optional)</span></label><input id="cellphone" name="cellphone" type="tel" maxlength="20"></div>
+        <div><label for="tel">Tel. no. <span class="muted">(optional)</span></label><input id="tel" name="tel" type="tel" maxlength="20"></div>
+      </div>
+
+      <label for="address">Address</label>
+      <input id="address" name="address" placeholder="Brgy., Town, Province" maxlength="120" required>
+
+      <label for="position">Position / Program / Campus <span class="muted">(optional)</span></label>
+      <input id="position" name="position" placeholder="e.g. BSIT 4 / Balayan" maxlength="80">
+
+      <label for="institution">School / Company / Institution <span class="muted">(optional)</span></label>
+      <input id="institution" name="institution" maxlength="80">
+
+      <label for="date">Date</label>
+      <input id="date" name="date" type="date" required>
+
+      <div class="error" id="formError"></div>
+      <button class="btn primary block" type="submit">Submit request</button>
+    </form>
+  </section>
+
+  <section class="card success" id="successCard" hidden>
+    <div class="org">Request submitted</div>
+    <p>Your reference code is</p>
+    <div class="ref" id="refCode"></div>
+    <p class="hint">Show this code to the clinic staff so they can find your request.</p>
+    <button class="btn block" id="anotherBtn" type="button">Submit another request</button>
+  </section>
+
+</main>
+
+<script src="shared.js"></script>
+<script src="medform-client.js"></script>
+</body>
+</html>

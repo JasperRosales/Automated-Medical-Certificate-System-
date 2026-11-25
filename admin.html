@@ -6,6 +6,7 @@
 <title>Medical Certificates · Admin</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="cert.css">
+<link rel="stylesheet" href="medform.css">
 </head>
 <body>
 
@@ -36,7 +37,12 @@
   <main class="admin-main" id="requestsView">
     <aside class="card list no-print">
       <input id="search" placeholder="Search name or reference code">
-      <div class="filters">
+      <div class="filters types">
+        <button data-type="all" class="active">All types</button>
+        <button data-type="certificate">Certificates <span id="cCert"></span></button>
+        <button data-type="medform">Medical Forms <span id="cForm"></span></button>
+      </div>
+      <div class="filters status">
         <button data-filter="pending" class="active">Pending <span id="cPending"></span></button>
         <button data-filter="approved">Approved <span id="cApproved"></span></button>
         <button data-filter="all">All</button>
@@ -52,7 +58,7 @@
   <main id="downloadView" hidden>
     <div class="card settings">
       <h2>Download certificates</h2>
-      <p class="hint" style="margin-top:6px">All requests for the chosen day. Each certificate is printed twice on one sheet, one copy per half, with a cut line in the middle.</p>
+      <p class="hint" style="margin-top:6px">All medical certificate requests for the chosen day (open a Medical Form request to print it). Each certificate is printed twice on one sheet, one copy per half, with a cut line in the middle.</p>
       <div class="row">
         <div><label>Day</label><input type="date" id="dlDate"></div>
         <div><label>Paper</label>
@@ -86,6 +92,10 @@
         <div><label>Control No. prefix</label><input name="controlPrefix"></div>
         <div><label>Next number</label><input name="nextControl" type="number" min="1"></div>
       </div>
+      <div class="row">
+        <div><label>Medical Form prefix</label><input name="formPrefix"></div>
+        <div><label>Next Medical Form number</label><input name="nextFormControl" type="number" min="1"></div>
+      </div>
 
       <h2>Quick picks</h2>
       <p class="hint" style="margin-top:6px">One option per line. These show as a list when you click Diagnosis, Remarks or Purpose on a certificate.</p>
@@ -111,6 +121,7 @@
 </div>
 
 <script src="shared.js"></script>
+<script src="medform-admin.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>

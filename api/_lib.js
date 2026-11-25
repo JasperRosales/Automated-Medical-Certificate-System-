@@ -14,6 +14,8 @@ export const DEFAULT_SETTINGS = {
   license: '',
   controlPrefix: 'MC',
   nextControl: 1,
+  formPrefix: 'MF',
+  nextFormControl: 1,
   diagnosisOptions: [],
   remarksOptions: [],
   purposeOptions: []
@@ -43,6 +45,7 @@ export function ensureSchema() {
       updated_at timestamptz,
       approved_at timestamptz
     )`;
+    await sql`alter table requests add column if not exists type text not null default 'certificate'`;
     await sql`create table if not exists settings (key text primary key, value jsonb not null)`;
   })().catch(e => { ready = undefined; throw e; });
   return ready;
@@ -52,6 +55,7 @@ export function ensureSchema() {
 export const toRecord = r => ({
   id: r.id,
   ref: r.ref,
+  type: r.type || 'certificate',
   status: r.status,
   name: r.name,
   age: r.age,
@@ -69,6 +73,13 @@ const LIMITS = { name: 120, age: 3, sex: 20, civilStatus: 20, address: 200, date
 const CERT_KEYS = ['controlNo', 'issueDate', 'consultDate', 'diagnosis', 'remarks1', 'remarks2',
   'purpose', 'signatoryName', 'signatoryTitle', 'license', 'validUntil'];
 
+// Medical (pre-employment/OJT exam) form fields kept in the cert json
+const MF_KEYS = ['last', 'first', 'middle', 'formDate', 'birthday', 'cellphone', 'tel', 'position', 'institution',
+  'weight', 'height', 'examDate', 'sigDate', 'bp', 'hr', 'hearing', 'vision', 'visR', 'visL', 'xray', 'xrayDate',
+  'cbc', 'cbcFind', 'ua', 'uaFind', 'meth', 'thc', 'drugDate', 'cls', 'mfRemarks', 'physician', 'physDate'];
+const MF_KEY_RE = /^(pe\d{1,2}[nf]|pmh[1-4]|fh[1-4]|oh[12])$/;
+const PHOTO_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/;
+
 // Trim and length-limit patient fields; returns null for anything not a string.
 export function cleanPatient(body, { partial = false } = {}) {
   const out = {};
@@ -83,8 +94,21 @@ export function cleanPatient(body, { partial = false } = {}) {
 export function cleanCert(cert) {
   const out = {};
   if (!cert || typeof cert !== 'object') return out;
-  for (const k of CERT_KEYS) if (typeof cert[k] === 'string') out[k] = cert[k].slice(0, 300);
+  for (const [k, v] of Object.entries(cert)) {
+    if (typeof v !== 'string') continue;
+    if (CERT_KEYS.includes(k) || MF_KEYS.includes(k) || MF_KEY_RE.test(k)) out[k] = v.slice(0, 300);
+    else if (k === 'photoAt' && /^\d{1,15}$/.test(v)) out[k] = v;
+    else if (k === 'photo' && (v === '' || (v.length < 400000 && PHOTO_RE.test(v)))) out[k] = v;
+  }
   return out;
+}
+
+// Medical form photos are kept for one day only, so the request list stays light
+export const PHOTO_TTL_MS = 24 * 3600e3;
+export async function expirePhotos() {
+  const cutoff = Date.now() - PHOTO_TTL_MS;
+  await sql`update requests set cert = cert - 'photo' - 'photoAt'
+    where cert ? 'photo' and coalesce(nullif(cert->>'photoAt', '')::bigint, 0) < ${cutoff}`;
 }
 
 /* ---------------- Settings ---------------- */
@@ -100,6 +124,8 @@ export async function saveSettings(s) {
     license: String(s.license ?? '').slice(0, 60),
     controlPrefix: String(s.controlPrefix ?? '').slice(0, 20),
     nextControl: Math.max(1, parseInt(s.nextControl, 10) || 1),
+    formPrefix: String(s.formPrefix ?? '').slice(0, 20),
+    nextFormControl: Math.max(1, parseInt(s.nextFormControl, 10) || 1),
     diagnosisOptions: optionList(s.diagnosisOptions),
     remarksOptions: optionList(s.remarksOptions),
     purposeOptions: optionList(s.purposeOptions)

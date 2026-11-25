@@ -1,0 +1,76 @@
+/* Pre-Employment/OJT Medical Examination Form (2 pages, Long/Legal bond).
+ * Layout from medical_exam_form.html; all rules scoped to .mf-page. */
+.mf-pages { display: flex; flex-direction: column; align-items: center; gap: 18px; overflow-x: auto; padding: 8px 4px 18px; }
+.mf-page {
+  width: 215.9mm; height: var(--ph, 330.2mm); background: #fff; position: relative; overflow: hidden; flex: none;
+  box-shadow: 0 2px 10px rgba(20,30,50,.18); box-sizing: border-box;
+  font-family: "Times New Roman", "Liberation Serif", Times, serif; color: #000; font-size: 10pt; line-height: 1.15;
+}
+.mf-page *, .mf-page *::before { box-sizing: border-box; }
+.mf-page .sheet { position: absolute; left: 9mm; top: 9mm; width: 196mm; }
+.mf-page .a { position: absolute; white-space: nowrap; line-height: 1; }
+.mf-page .ln { position: absolute; border-bottom: 1px solid #000; height: 0; }
+.mf-page .cb { display: inline-block; position: relative; width: 3.3mm; height: 3.3mm; border: 1px solid #000; vertical-align: -0.5mm; margin-right: 1mm; background: #fff; }
+.mf-page .cb.on::after { content: "\2713"; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-52%); text-align: center; font: bold 10pt Arial, sans-serif; line-height: 1; }
+.mf-page .up { text-transform: uppercase; }
+.mf-page .ctr { text-align: center; }
+.mf-page .mfv { font-size: 11pt; overflow: hidden; white-space: nowrap; }
+
+.mf-page table.g { width: 196mm; border-collapse: collapse; table-layout: fixed; }
+.mf-page table.g td, .mf-page table.g th { border: 1px solid #000; padding: 0 1.3mm; vertical-align: middle; overflow: hidden; }
+.mf-page .hdr td { height: 10.3mm; font-size: 10.5pt; }
+.mf-page .hdr td.logo { padding: 0; text-align: center; }
+.mf-page .hdr td.logo img { height: 9.2mm; width: auto; display: block; margin: 0 auto; }
+.mf-page .title { height: 6mm; border: 1px solid #000; border-top: 0; text-align: center; font-weight: bold; font-size: 12pt; line-height: 6mm; letter-spacing: .01em; }
+.mf-page .privacy { height: 84.4mm; border: 1px solid #000; border-top: 0; padding: .6mm 1.4mm 0 1.4mm; font-style: italic; font-size: 10.05pt; line-height: 4.24mm; text-align: justify; }
+.mf-page .privacy p { margin: 0; }
+.mf-page .p1rows td { font-size: 10.5pt; }
+.mf-page .p1rows .r-ctrl td { height: 3.9mm; text-align: left; font-size: 9.5pt; padding-left: 136mm; line-height: 1; white-space: nowrap; }
+.mf-page .p1rows .r-ctrl .ctrl { color: #8b1a2b; font-weight: bold; }
+.mf-page .p1rows .r-it td { text-align: center; font-style: italic; font-size: 10pt; }
+.mf-page .p1rows .r-pi td { height: 5.3mm; }
+.mf-page .p1rows .r-ad td { height: 7.2mm; }
+.mf-page .p1rows td.fill { padding-left: 2mm; }
+.mf-page .p1rows td.fill .mfv { line-height: 1.05; }
+.mf-page .p1rows .r-ad td.fill .mfv { white-space: normal; max-height: 7mm; }
+.mf-page .hist td { font-size: 10.5pt; }
+.mf-page .hist td.hl { vertical-align: top; padding-top: .8mm; }
+.mf-page .hist .mfv { font-size: 10pt; }
+.mf-page .pe td { height: 5.27mm; font-size: 10pt; padding: 0 0.8mm; white-space: nowrap; }
+.mf-page .pe td.ck { text-align: center; cursor: pointer; }
+.mf-page .pe td.ck .cb { margin: 0; }
+.mf-page .pe .mfv { font-size: 9.5pt; }
+.mf-page .pe th { height: 7.2mm; font-size: 10.6pt; font-weight: bold; text-align: center; }
+.mf-page .pe td.st, .mf-page .st { text-align: center; font-weight: bold; font-size: 10.5pt; }
+.mf-page .diag { position: relative; height: 48.2mm; border: 1px solid #000; border-top: 0; font-size: 10pt; }
+.mf-page .diag .div { position: absolute; left: 100.6mm; top: 0; bottom: 0; border-left: 1px solid #000; }
+.mf-page .diag .mfv, .mf-page .cert .mfv { font-size: 10.5pt; }
+.mf-page .pgno { position: absolute; right: 0; top: 312.3mm; font-size: 10pt; font-weight: bold; }
+
+.mf-page .cert { position: relative; width: 196mm; height: 119.4mm; border: 1px solid #000; font-size: 10.5pt; }
+.mf-page .cert .ct { position: absolute; left: 0; right: 0; top: 0; height: 6.4mm; border-bottom: 1px solid #000; text-align: center; font-weight: bold; font-size: 11pt; line-height: 6.6mm; letter-spacing: .02em; }
+.mf-page .cert .vdiv { position: absolute; left: 96.9mm; top: 6.4mm; bottom: 0; border-left: 1px solid #000; }
+.mf-page .photo { position: absolute; left: 71.2mm; top: 6.4mm; width: 25.7mm; height: 28.5mm; border-left: 1px solid #000; border-bottom: 1px solid #000; display: flex; align-items: center; justify-content: center; text-align: center; font-style: italic; font-size: 10.5pt; line-height: 1.25; overflow: hidden; cursor: pointer; }
+.mf-page .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mf-page .photo.has span { visibility: hidden; }
+@media screen { .mf-page .photo:hover::after { content: "Click to upload"; position: absolute; bottom: 1mm; left: 0; right: 0; font: 600 7pt Arial, sans-serif; color: #3b6fd8; } }
+.mf-page .auth { position: absolute; left: 1.9mm; top: 67.8mm; width: 93.1mm; font-size: 10.45pt; line-height: 4.33mm; text-align: justify; text-indent: 6.6mm; }
+.mf-page .cls-b { font-weight: bold; font-size: 11.6pt; cursor: pointer; }
+.mf-page .cls-b .cb { width: 3.8mm; height: 3.8mm; }
+.mf-page .cls-d { position: absolute; left: 129.6mm; width: 65.8mm; white-space: normal; line-height: 4.9mm; font-size: 10.5pt; }
+.mf-page .hl2 { position: absolute; left: 96.9mm; right: 0; border-top: 1px solid #000; }
+.mf-page .note { position: absolute; left: 2.4mm; top: 119.7mm; width: 193mm; font-style: italic; font-size: 10.6pt; line-height: 4.3mm; padding-left: 9.5mm; text-indent: -9.5mm; }
+.mf-page [data-cb] { cursor: pointer; }
+
+/* On-screen editing */
+.mf-page [contenteditable] { outline: none; background: #fff9e0; border-radius: 1px; }
+.mf-page [contenteditable]:hover { background: #fff1b8; }
+.mf-page [contenteditable]:focus { background: #ffe98a; }
+.mf-page span[contenteditable] { display: inline-block; min-width: 18mm; }
+.mf-page [contenteditable]:empty::before { content: attr(data-ph); color: #b9b3a6; font-style: italic; font-weight: normal; text-transform: none; }
+
+@media print {
+  #printSheet.mf { height: auto; max-height: none; overflow: visible; }
+  #printSheet.mf .mf-page { box-shadow: none; margin: 0; height: calc(var(--ph) - 1mm); break-after: page; page-break-after: always; }
+  #printSheet.mf .mf-page:last-child { break-after: auto; page-break-after: auto; }
+}

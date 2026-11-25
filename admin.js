@@ -4,6 +4,8 @@
 
   let currentId = null;
   let filter = 'pending';
+  let typeFilter = 'all';
+  const isForm = r => r?.type === 'medform';
 
   /* ---------------- Data (cached from the API) ---------------- */
   const Store = {
@@ -111,15 +113,22 @@
   }));
 
   /* ---------------- Request list ---------------- */
-  $$('.filters button').forEach(b => b.addEventListener('click', () => {
+  $$('.filters.status button').forEach(b => b.addEventListener('click', () => {
     filter = b.dataset.filter;
-    $$('.filters button').forEach(x => x.classList.toggle('active', x === b));
+    $$('.filters.status button').forEach(x => x.classList.toggle('active', x === b));
+    renderList();
+  }));
+  $$('.filters.types button').forEach(b => b.addEventListener('click', () => {
+    typeFilter = b.dataset.type;
+    $$('.filters.types button').forEach(x => x.classList.toggle('active', x === b));
     renderList();
   }));
   $('#search').addEventListener('input', renderList);
 
   function renderList() {
-    const all = Store.all();
+    $('#cCert').textContent = `(${Store.all().filter(r => !isForm(r)).length})`;
+    $('#cForm').textContent = `(${Store.all().filter(isForm).length})`;
+    const all = Store.all().filter(r => typeFilter === 'all' || (typeFilter === 'medform') === isForm(r));
     $('#cPending').textContent = `(${all.filter(r => r.status === 'pending').length})`;
     $('#cApproved').textContent = `(${all.filter(r => r.status === 'approved').length})`;
 
@@ -131,7 +140,7 @@
 
     $('#items').innerHTML = list.length ? list.map(r => `
       <div class="req ${r.id === currentId ? 'active' : ''}" data-id="${r.id}">
-        <div class="top"><span class="name">${esc(r.name)}</span><span class="badge ${r.status}">${r.status}</span></div>
+        <div class="top"><span class="name">${esc(r.name)}</span><span>${isForm(r) ? '<span class="badge type">Medical Form</span>' : ''}<span class="badge ${r.status}">${r.status}</span></span></div>
         <div class="sub">${esc(r.ref)} · ${new Date(r.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
       </div>`).join('')
       : '<div class="empty-state" style="padding:30px 10px">No requests here.</div>';
@@ -144,6 +153,7 @@
   function ensureCert(rec) {
     const s = Store.settings();
     if (!rec.cert) rec.cert = {};
+    if (isForm(rec)) return MedForm.defaults(rec, s);
     const c = rec.cert;
     // Migrate older records that used the previous field names
     const defaults = {
@@ -251,10 +261,10 @@
 
   // On small screens, scale the certificate down to the available width
   function fitToScreen() {
-    const wrap = $('#cert'), page = wrap && $('.page', wrap);
+    const wrap = $('#cert'), page = wrap && ($('.mf-pages', wrap) || $('.page', wrap));
     if (!page) return;
     page.style.zoom = '';
-    const z = Math.min(1, (wrap.clientWidth - 8) / page.offsetWidth);
+    const z = Math.min(1, (wrap.clientWidth - 8) / ($('.mf-page', wrap) || page).offsetWidth);
     if (z < 1) page.style.zoom = z.toFixed(3);
   }
   window.addEventListener('resize', fitToScreen);
@@ -305,12 +315,44 @@
         <select class="paper-select" title="Paper size">${paperOptions()}</select>
         <button class="btn danger" id="deleteBtn">Delete</button>
       </div>
-      <p class="hint no-print">Click any highlighted text on the certificate to edit it. Changes save automatically.</p>
-      <div class="cert-wrap" id="cert">${certificateHTML(rec, Store.settings())}</div>`;
+      <p class="hint no-print">${isForm(rec)
+        ? 'Click highlighted text to edit it, click a box to tick it, or click the picture box to add a photo (photos are kept for 1 day).'
+        : 'Click any highlighted text on the certificate to edit it.'} Changes save automatically.</p>
+      <div class="cert-wrap" id="cert">${isForm(rec) ? MedForm.html(rec, { pageH: PAPERS[paper][1] }) : certificateHTML(rec, Store.settings())}</div>`;
 
     const cert = $('#cert');
     fitToScreen();
-    $$('[data-k]', cert).forEach(fit);
+    $$('[data-k], [data-derive]', cert).forEach(isForm(rec) ? MedForm.fit : fit);
+
+    if (isForm(rec)) {
+      // Tick boxes: click sets the value, click again clears it
+      cert.addEventListener('click', (e) => {
+        const box = e.target.closest('[data-cb]') || e.target.closest('.cls-b, td.ck')?.querySelector('[data-cb]');
+        if (box) {
+          const r = Store.get(currentId), k = box.dataset.cb;
+          r.cert[k] = r.cert[k] === box.dataset.v ? '' : box.dataset.v;
+          $$(`[data-cb="${k}"]`, cert).forEach(b => b.classList.toggle('on', r.cert[k] === b.dataset.v));
+          Store.save(r);
+          return;
+        }
+        const photo = e.target.closest('[data-photo]');
+        if (!photo) return;
+        const input = Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*' });
+        input.onchange = async () => {
+          try {
+            const url = await MedForm.readPhoto(input.files[0]);
+            const r = Store.get(currentId);
+            r.cert.photo = url;
+            r.cert.photoAt = String(Date.now());
+            photo.classList.add('has');
+            photo.querySelector('img')?.remove();
+            photo.prepend(Object.assign(document.createElement('img'), { src: url, alt: '' }));
+            Store.save(r);
+          } catch (ex) { alert(ex.message); }
+        };
+        input.click();
+      });
+    }
 
     cert.addEventListener('input', (e) => {
       const el = e.target.closest('[data-k]');
@@ -319,6 +361,13 @@
       const k = el.dataset.k;
       const v = el.textContent.trim();
       if (PATIENT_KEYS.includes(k)) r[k] = v; else r.cert[k] = v;
+      if (isForm(r)) {
+        MedForm.fit(el);
+        MedForm.sync(cert, r, k, el);
+        Store.save(r);
+        if (['last', 'first', 'middle'].includes(k)) renderList();
+        return;
+      }
       // Validity follows the issue date (6 months)
       if (k === 'issueDate') {
         const vu = addMonthsText(v, VALID_MONTHS);
@@ -383,6 +432,7 @@
   document.head.append(pageStyle);
   function setPaper(k) {
     paper = k;
+    $$('.mf-page').forEach(p => p.style.setProperty('--ph', PAPERS[k][1] + 'mm'));
     localStorage.setItem('medcert_paper', k);
     const H = PAPERS[k][1];
     pageStyle.textContent = `@page { size: ${PAPER_W}mm ${H}mm; margin: 0; } #printSheet { --sheet-h: ${H}mm; }`;
@@ -396,6 +446,18 @@
   const sheet = document.createElement('div');
   sheet.id = 'printSheet';
   window.addEventListener('beforeprint', () => {
+    // Medical form: print its two pages as they are, one per sheet
+    const pages = $$('#cert .mf-page');
+    sheet.className = pages.length ? 'mf' : '';
+    if (pages.length) {
+      sheet.replaceChildren(...pages.map(p => {
+        const c = p.cloneNode(true);
+        $$('[contenteditable]', c).forEach(el => el.removeAttribute('contenteditable'));
+        return c;
+      }));
+      document.body.append(sheet);
+      return;
+    }
     const page = $('#cert .page');
     if (!page) return;
     const copy = () => {
@@ -465,7 +527,7 @@
 
   async function approve() {
     const r = Store.get(currentId);
-    if (!r.cert.diagnosis && !confirm('Diagnosis is empty. Approve anyway?')) return;
+    if (!isForm(r) && !r.cert.diagnosis && !confirm('Diagnosis is empty. Approve anyway?')) return;
 
     $('#approveBtn').disabled = true;
     try {
@@ -494,7 +556,7 @@
   dlDate.addEventListener('change', renderDownload);
 
   function dayRequests() {
-    return Store.all().filter(r => r.date === dlDate.value).sort((a, b) => a.createdAt - b.createdAt);
+    return Store.all().filter(r => !isForm(r) && r.date === dlDate.value).sort((a, b) => a.createdAt - b.createdAt);
   }
 
   function renderDownload() {
@@ -590,6 +652,7 @@
     for (const k of Object.keys(s)) if (sf[k]) s[k] = sf[k].value.trim();
     for (const k of OPTION_KEYS) s[k] = (sf[k]?.value || '').split('\n').map(x => x.trim()).filter(Boolean);
     s.nextControl = Math.max(1, parseInt(s.nextControl, 10) || 1);
+    s.nextFormControl = Math.max(1, parseInt(s.nextFormControl, 10) || 1);
     const pw = sf.newPassword.value;
     $('#settingsMsg').textContent = 'Saving…';
     try {

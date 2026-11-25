@@ -32,18 +32,25 @@ export default handler({
   // Approve: assigns the next control number (once) atomically
   POST: withId(async (req, res, id) => {
     const s = await getSettings();
-    const prefix = s.controlPrefix ? `${s.controlPrefix}-` : '';
+    const found = await sql`select type from requests where id = ${id}`;
+    if (!found.length) return res.status(404).json({ error: 'Not found' });
+    // Medical forms have their own control number series
+    const mf = found[0].type === 'medform';
+    const key = mf ? 'nextFormControl' : 'nextControl';
+    const next = mf ? s.nextFormControl : s.nextControl;
+    const pre = mf ? s.formPrefix : s.controlPrefix;
+    const prefix = pre ? `${pre}-` : '';
     const rows = await sql`
       with cur as (select * from requests where id = ${id} for update),
       need as (select 1 from cur where coalesce(cur.cert->>'controlNo', '') = ''),
       bump as (
         insert into settings (key, value)
-        select 'general', jsonb_build_object('nextControl', ${s.nextControl}::int + 1)
+        select 'general', jsonb_build_object(${key}::text, ${next}::int + 1)
         from need
         on conflict (key) do update
-          set value = settings.value || jsonb_build_object('nextControl',
-                coalesce((settings.value->>'nextControl')::int, ${s.nextControl}::int) + 1)
-        returning (value->>'nextControl')::int - 1 as n
+          set value = settings.value || jsonb_build_object(${key}::text,
+                coalesce((settings.value->>${key}::text)::int, ${next}::int) + 1)
+        returning (value->>${key}::text)::int - 1 as n
       )
       update requests r set
         status = 'approved',
