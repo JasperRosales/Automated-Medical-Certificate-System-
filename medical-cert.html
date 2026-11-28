@@ -3,60 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f4f1ee">
+<meta name="theme-color" content="#631320">
 <title>Request a Medical Certificate</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="form.css">
 </head>
 <body>
-<main class="client">
+<header class="band">
+  <div class="wrap">
+    <div class="brand">
+      <img src="seal-sm.png" alt="">
+      <div><strong>Batangas State University</strong><span>Balayan Campus Health Services</span></div>
+    </div>
+    <nav class="tabs" aria-label="Request type">
+      <a href="medical-cert.html" aria-current="page">Medical certificate</a>
+      <a href="medical-form.html">Pre-employment / OJT form</a>
+    </nav>
+  </div>
+</header>
 
-  <section class="card" id="formCard">
-    <div class="org" id="orgName"></div>
-    <h1>Medical Certificate Request</h1>
-    <p class="hint">Fill in your details and submit. The clinic staff will complete and print your certificate.
-      Need a Pre-Employment/OJT medical form instead? <a href="medical-form.html">Request one here</a>.</p>
+<main class="wrap">
+  <section class="sheet" id="formCard">
+    <h1>Request a medical certificate</h1>
+    <p class="lead">Fill in your details. Clinic staff will complete and print your certificate.</p>
 
     <form id="requestForm" novalidate>
-      <label for="name">Full name</label>
-      <input id="name" name="name" placeholder="e.g. Juan A. Dela Cruz" required>
-
-      <div class="row">
-        <div>
-          <label for="age">Age</label>
-          <input id="age" name="age" type="number" min="1" max="130" required>
+      <fieldset class="group">
+        <legend>Personal details</legend>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" name="name" placeholder="e.g. Juan A. Dela Cruz" autocomplete="name" required>
         </div>
-        <div>
-          <label for="sex">Sex</label>
-          <select id="sex" name="sex" required>
-            <option value="">Select…</option><option>Female</option><option>Male</option>
-          </select>
+        <div class="row age-sex">
+          <div class="field">
+            <label for="age">Age</label>
+            <input id="age" name="age" type="number" min="1" max="130" inputmode="numeric" required>
+          </div>
+          <fieldset class="choice">
+            <legend>Sex</legend>
+            <div class="chips">
+              <label><input type="radio" name="sex" value="Female" required><span>Female</span></label>
+              <label><input type="radio" name="sex" value="Male"><span>Male</span></label>
+            </div>
+          </fieldset>
         </div>
-      </div>
+        <fieldset class="choice">
+          <legend>Civil status</legend>
+          <div class="chips quad">
+            <label><input type="radio" name="civilStatus" value="Single" required><span>Single</span></label>
+            <label><input type="radio" name="civilStatus" value="Married"><span>Married</span></label>
+            <label><input type="radio" name="civilStatus" value="Widowed"><span>Widowed</span></label>
+            <label><input type="radio" name="civilStatus" value="Separated"><span>Separated</span></label>
+          </div>
+        </fieldset>
+      </fieldset>
 
-      <label for="civilStatus">Civil status</label>
-      <select id="civilStatus" name="civilStatus" required>
-        <option value="">Select…</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option>
-      </select>
+      <fieldset class="group">
+        <legend>Address and date</legend>
+        <div class="field">
+          <label for="address">Address</label>
+          <input id="address" name="address" placeholder="Brgy., Town, Province" maxlength="80" autocomplete="street-address" required>
+        </div>
+        <div class="field">
+          <label for="date">Date of request</label>
+          <input id="date" name="date" type="date" required>
+        </div>
+      </fieldset>
 
-      <label for="address">Address</label>
-      <input id="address" name="address" placeholder="Brgy., Town, Province" maxlength="80" required>
-
-      <label for="date">Date</label>
-      <input id="date" name="date" type="date" required>
-
-      <div class="error" id="formError"></div>
+      <div class="error" id="formError" role="alert"></div>
       <button class="btn primary block" type="submit">Submit request</button>
     </form>
   </section>
 
-  <section class="card success" id="successCard" hidden>
-    <div class="org">Request submitted</div>
-    <p>Your reference code is</p>
-    <div class="ref" id="refCode"></div>
-    <p class="hint">Show this code to the clinic staff so they can find your request.</p>
+  <section class="sheet" id="successCard" hidden>
+    <h1>Request sent</h1>
+    <p class="lead">Show this code at the clinic so staff can find your request.</p>
+    <div class="ticket">
+      <div class="ticket-main">
+        <div class="ticket-label">Reference code</div>
+        <div class="ref" id="refCode"></div>
+      </div>
+      <div class="ticket-stub">Medical certificate</div>
+    </div>
     <button class="btn block" id="anotherBtn" type="button">Submit another request</button>
   </section>
-
 </main>
 
 <script src="shared.js"></script>

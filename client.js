@@ -2,7 +2,6 @@
   const form = document.getElementById('requestForm');
   const err = document.getElementById('formError');
 
-  document.getElementById('orgName').textContent = 'BatStateU Balayan · Health Services';
   form.date.value = todayISO();
 
   form.addEventListener('submit', async (e) => {
@@ -15,7 +14,7 @@
     const missing = ['name', 'age', 'sex', 'civilStatus', 'address', 'date'].filter(k => !data[k]);
     if (missing.length) {
       err.textContent = 'Please complete all fields.';
-      form[missing[0]].focus();
+      focusField(missing[0]);
       return;
     }
     const age = Number(data.age);

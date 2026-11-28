@@ -117,42 +117,9 @@ input[type=date]::-webkit-date-and-time-value { text-align: left; }
 .badge.pending { color: var(--warn); background: var(--warn-soft); border-color: #efd9b0; }
 .badge.approved { color: var(--good); background: var(--good-soft); border-color: #bfdcc9; }
 
-/* ---------------- CLIENT ---------------- */
-.client { max-width: 500px; margin: 48px auto; padding: 0 18px 48px; }
-.client .card { box-shadow: var(--shadow-float); border-top: 4px solid var(--accent); }
-.client h1 { font-size: 24px; margin: 0 0 6px; letter-spacing: -.01em; }
+/* Admin login card text. The request forms have their own form.css. */
 .org { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-.success { text-align: center; }
-.success .ref {
-  display: inline-block; margin: 14px 0 10px; padding: 12px 22px; border-radius: var(--radius-sm);
-  font-size: 30px; font-weight: 800; letter-spacing: .1em; color: var(--accent);
-  font-family: ui-monospace, Menlo, monospace;
-  background: var(--accent-soft); border: 1px solid #e8cdd2; box-shadow: var(--edge) #e8cdd2;
-}
-.photo-pick { display: flex; gap: 14px; align-items: center; }
-.photo-thumb {
-  flex: none; width: 84px; height: 93px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted);
-  background: var(--bg) center/cover no-repeat;
-}
-.photo-pick input[type=file] { font-size: 13px; max-width: 100%; }
-.photo-pick .btn { margin-top: 8px; padding: 6px 12px; font-size: 13px; }
 .error { color: var(--danger); font-size: 13.5px; font-weight: 500; margin-top: 12px; min-height: 18px; }
-
-@media (max-width: 520px) {
-  .client { margin: 0 auto; padding: 14px 12px calc(24px + env(safe-area-inset-bottom)); }
-  .client .card { padding: 22px 18px; }
-  .client h1 { font-size: 21px; }
-  .client label { margin-top: 14px; }
-  /* 16px stops iOS Safari from zooming in on focus */
-  .client input, .client select, .client .btn { font-size: 16px; }
-  .client input, .client select { padding: 12px 13px; }
-  .client .btn.block { padding: 14px; }
-  .success .ref { font-size: clamp(22px, 8vw, 30px); padding: 10px 16px; letter-spacing: .06em; }
-}
-@media (max-width: 340px) {
-  .client .row { grid-template-columns: 1fr; gap: 0; }
-}
 
 /* ---------------- ADMIN ---------------- */
 .login { max-width: 380px; margin: 90px auto; box-shadow: var(--shadow-float); border-top: 4px solid var(--accent); }

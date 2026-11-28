@@ -13,6 +13,7 @@
     thumb.style.backgroundImage = url ? `url(${url})` : '';
     thumb.textContent = url ? '' : 'No photo';
     photoClear.hidden = !url;
+    document.getElementById('photoPick').textContent = url ? 'Change photo' : 'Choose photo';
     if (!url) photoIn.value = '';
   }
   photoIn.addEventListener('change', () => {
@@ -54,7 +55,7 @@
     const missing = ['last', 'first', 'birthday', 'age', 'sex', 'civilStatus', 'weight', 'height', 'address', 'date'].filter(k => !data[k]);
     if (missing.length) {
       err.textContent = 'Please complete all required fields.';
-      form[missing[0]].focus();
+      focusField(missing[0]);
       return;
     }
     const age = Number(data.age);

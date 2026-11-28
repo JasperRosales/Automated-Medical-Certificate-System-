@@ -13,6 +13,12 @@ async function api(path, { method = 'GET', body } = {}) {
   return data;
 }
 
+// Focus a form field by name; radio groups focus their first option.
+function focusField(name, form = document.getElementById('requestForm')) {
+  const el = form.elements[name];
+  (el && el.focus ? el : el && el[0])?.focus();
+}
+
 const PATIENT_KEYS = ['name', 'age', 'sex', 'civilStatus', 'address'];
 
 const pad = (n, len = 2) => String(n).padStart(len, '0');
